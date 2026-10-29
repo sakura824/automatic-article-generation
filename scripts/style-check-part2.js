@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * style-check-r1-part2.js —— 第 1 轮样式检查（补充，只读）：
+ * style-check-part2.js —— 样式检查（补充，只读）：
  *   A. 仪表盘「一键自检」弹窗失败态截图（selfcheck items 双重包裹导致的用户可见报错）
  *   B. 最小窗口 1080×720 下的布局压力测试
  *   C. 历史来源列 chip 宽度 vs 列宽的量测（文本框换行证据）
  *   D. 设置 tab-bar 在 1080 宽下是否溢出/换行
- * 输出：test-evidence/round-1/样式/ 下 5x-*.png 与 _style-check-part2.txt
+ * 输出：test-evidence/样式/ 下 5x-*.png 与 _style-check-part2.txt
  */
 const fs = require('fs');
 const os = require('os');
@@ -15,7 +15,7 @@ const { execFileSync } = require('child_process');
 const { _electron: electron } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, 'test-evidence', 'round-1', '样式');
+const OUT = path.join(ROOT, 'test-evidence', '样式');
 const SUM = path.join(OUT, '_style-check-part2.txt');
 const lines = [];
 const log = (s) => { lines.push(String(s)); console.log(String(s)); };

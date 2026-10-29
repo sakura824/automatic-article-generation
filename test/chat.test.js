@@ -228,7 +228,7 @@ test('composeFromSession：LLM 输出格式不符 → E_LLM', async () => {
   );
 });
 
-/* ------------------------------ 素材成文（创作页模式 A） ------------------------------ */
+/* ------------------------------ 素材成文（创作页） ------------------------------ */
 
 test('buildMaterialPrompt：素材为空 → E_INVALID_INPUT；含强调点与主题行', () => {
   assert.throws(() => chat.buildMaterialPrompt({ material: '   ' }), (e) => e.code === 'E_INVALID_INPUT');

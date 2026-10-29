@@ -1,5 +1,5 @@
 /* ============================================================
- * compose.js —— 创作（素材成文， 模式 A / §6）
+ * compose.js —— 创作（素材成文）
  * 数据源（通道名与 payload 对齐 main/ipc.js v2 落地约定）：
  *   compose:generate {mode:'material', material, emphasis} → {articleId, dir, article, words, origin, date}
  *   compose:save     {id, title?, digest?, html?}          → {article, words}（编辑后保存）

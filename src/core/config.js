@@ -77,7 +77,7 @@ function defaultConfig() {
       autoSkipSensitive: true,   // 选题雷达全自动：跳过需人工确认的敏感话题
       autoRewriteAttempts: 5,    // 选题雷达全自动：相似度超阈值时的自动重写次数（1~10）
       autoForceUpload: true,     // 选题雷达全自动：重写用尽仍超标时照常上传（similarity.json 留痕）
-      similarityThreshold: 0.3,  // n-gram 相似度自检阈值（§5.1），超出即重写并提示
+      similarityThreshold: 0.3,  // n-gram 相似度自检阈值，超出即重写并提示
       verticalNotice: { enabled: false, text: '' }, // 文末领域提示，默认关闭（聚合模式可条件注入）
       sensitiveKeywords: DEFAULT_SENSITIVE_KEYWORDS.slice(), // 敏感话题关键词（命中需人工确认，可覆盖）
     },

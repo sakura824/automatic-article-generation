@@ -1,9 +1,9 @@
 /* ============================================================
    公众号写作助手 · 渲染层样式
-   来源：prototype/index.html <style> 全量提取（视觉唯一基准）
+   来源：设计稿基准样式全量提取（视觉唯一基准）
    追加：Tailwind preflight 等效 reset（CDN 移除后补齐基线）、
         Electron 全出血窗口 / 浏览器演示双模式、
-        契约要求的 fail / 加载态扩展（沿用设计 token）。
+        失败态 / 加载态扩展（沿用设计 token）。
    ============================================================ */
 
 /* ── Tailwind preflight 等效 reset（仅保留原型实际依赖的基线） ── */
@@ -267,7 +267,7 @@ textarea.input{ resize:vertical; min-height:76px; line-height:1.6; }
 .stat .trend{ font-size:11.5px; color:var(--brand-deep); font-weight:600; margin-left:6px; }
 
 .two-grid{ display:grid; grid-template-columns:1.4fr 1fr; gap:14px; margin-top:14px; align-items:start; }
-/* 定时卡被隐藏（仓库自动未开启，PRD v2 §6）时只剩「最近文章」：收回单列，避免右侧半屏空白 */
+/* 定时卡被隐藏（仓库自动未开启）时只剩「最近文章」：收回单列，避免右侧半屏空白 */
 .two-grid--single{ grid-template-columns:1fr; }
 @media (max-width:1100px){ .two-grid{ grid-template-columns:1fr; } .stat-grid{ grid-template-columns:repeat(3,1fr); } }
 

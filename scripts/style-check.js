@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * style-check-r1.js —— 第 1 轮「样式」维度检查（只读检查，不改任何代码）。
+ * style-check.js —— 「样式」维度检查（只读检查，不改任何代码）。
  * playwright _electron 以 WECHAT_DAILY_MOCK=1 启动应用：
  *   - 对 v1 四视图 + v2 新页面（素材成文/对话共创/选题雷达、设置三新页签、历史来源筛选）
- *     逐一截图到 test-evidence/round-1/样式/；
+ *     逐一截图到 test-evidence/样式/；
  *   - hover / focus 态截图；
  *   - 运行时自动检查：FA 图标字体加载、非 file:// 请求（CDN）、pageerror/console.error、
  *     文本溢出（横向/纵向被裁剪的叶子文本）、视口横向溢出、body 字体。
- * 运行：node scripts/style-check-r1.js
+ * 运行：node scripts/style-check.js
  * 退出码：0 = 脚本自身跑完（不代表样式全通过，问题以报告为准）。
  */
 const fs = require('fs');
@@ -18,7 +18,7 @@ const { execFileSync } = require('child_process');
 const { _electron: electron } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, 'test-evidence', 'round-1', '样式');
+const OUT = path.join(ROOT, 'test-evidence', '样式');
 const SUMMARY = path.join(OUT, '_style-check-summary.txt');
 
 const lines = [];        // 摘要
@@ -121,7 +121,7 @@ const ICON_FN = () => {
   const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'wdp-style-ud-'));
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'wdp-style-repo-'));
   makeGitRepo(repo);
-  log(`# 第 1 轮样式检查 —— node scripts/style-check-r1.js`);
+  log(`# 样式检查 —— node scripts/style-check.js`);
   log(`时间：${new Date().toISOString()}  Node ${process.version}`);
   log(`输出目录：${OUT}`);
   log(`userData：${userData}   repo：${repo}`);

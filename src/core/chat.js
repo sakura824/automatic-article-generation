@@ -8,7 +8,7 @@
  * - 会话回复（chatReply）：多消息 LLM 调用（llm.callLlmMessages，mockKind='chat'）；
  * - 「整理成文章」指令（isComposeCommand / composeFromSession）：把整轮讨论整理为
  *   ===TITLE===/===DIGEST===/===BODY_HTML=== 格式的文章；
- * - 创作页「素材成文」（buildMaterialPrompt / composeMaterial， 模式 A）。
+ * - 创作页「素材成文」（buildMaterialPrompt / composeMaterial）。
  *
  * 依赖注入：LLM 调用统一走 llm.callLlmMessages（fetch/超时可经 deps 注入，测试零真实网络；
  * mock 模式由 llm.js 入口按 mockKind 短路到 mock.js 确定性桩）。仅 Node 内置模块。

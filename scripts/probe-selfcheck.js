@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 'use strict';
-// probe-selfcheck-r1.js —— 只读探针：dump selfcheck:run 的真实返回形状（用于定位样式缺陷根因）
+// probe-selfcheck.js —— 只读探针：dump selfcheck:run 的真实返回形状（用于核查 selfcheck:run 返回形状）
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
 const { _electron: electron } = require('playwright');
 const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, 'test-evidence', 'round-1', '样式', '_probe-selfcheck.txt');
+const OUT = path.join(ROOT, 'test-evidence', '样式', '_probe-selfcheck.txt');
 const lines = [];
 const log = (s) => { lines.push(String(s)); console.log(String(s)); };
 

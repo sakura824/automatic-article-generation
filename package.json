@@ -5,6 +5,11 @@
   "description": "公众号写作助手：素材成文 / AI 对话共创 / 选题雷达 / 可选仓库自动 → 微信公众号草稿箱",
   "main": "main/main.js",
   "license": "MIT",
+  "author": "sakura824",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakura824/automatic-article-generation.git"
+  },
   "private": true,
   "engines": {
     "node": ">=22"
