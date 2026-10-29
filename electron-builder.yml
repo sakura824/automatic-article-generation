@@ -1,0 +1,33 @@
+# electron-builder 配置
+# appId 与 main.js 里的 app.setAppUserModelId 保持一致（Windows 通知依赖）。
+appId: com.wechat.article.assistant
+productName: 公众号写作助手
+directories:
+  output: dist
+# 只打包运行所需内容；test/、docs/、test-evidence/、scripts/ 不进包。
+files:
+  - package.json
+  - main/**/*
+  - preload/**/*
+  - renderer/**/*
+  - src/**/*
+  - assets/**/*
+asar: true
+compression: normal
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+    - target: portable
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  shortcutName: 公众号写作助手
+mac:
+  icon: build/icon.png
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+    - target: zip

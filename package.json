@@ -1,0 +1,25 @@
+{
+  "name": "wechat-article-assistant",
+  "productName": "公众号写作助手",
+  "version": "2.4.2",
+  "description": "公众号写作助手：素材成文 / AI 对话共创 / 选题雷达 / 可选仓库自动 → 微信公众号草稿箱",
+  "main": "main/main.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "app": "electron .",
+    "app:mock": "node scripts/app-mock.js",
+    "test": "node scripts/check-syntax.js && node --test \"test/*.test.js\"",
+    "check:syntax": "node scripts/check-syntax.js",
+    "smoke": "node scripts/smoke-electron.js",
+    "check:channels": "node scripts/check-channels.js",
+    "pack": "electron-builder --win nsis portable",
+    "pack:mac": "electron-builder --mac dmg zip",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "playwright": "^1.48.0"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "wechat": { "appId": "", "appSecret": "" },
+  "llm": { "baseUrl": "https://open.bigmodel.cn/api/paas/v4", "apiKey": "", "model": "glm-4.6", "temperature": 0.7 },
+  "content": {
+    "repoPath": "",
+    "coverPath": "",
+    "author": "",
+    "audience": "",
+    "styleExtra": "",
+    "aiDisclosure": { "enabled": true, "text": "本文由 AI 生成，经人工审阅修改" },
+    "material": "",
+    "emphasis": ""
+  },
+  "project": {
+    "description": "",
+    "techTerms": "",
+    "audience": "",
+    "styleExtra": ""
+  },
+  "style": { "profile": null, "enabled": false },
+  "aggregate": {
+    "articleMode": "",
+    "profilePath": "",
+    "imagesEnabled": false,
+    "imagesDir": "",
+    "includeCode": false,
+    "repoPath": "",
+    "productName": "",
+    "promotion": "",
+    "keywords": [],
+    "whitelist": [],
+    "searchProvider": "bocha",
+    "searchApiKey": "",
+    "dailyLimit": 10,
+    "autoPickCount": 1,
+    "autoSkipSensitive": true,
+    "autoRewriteAttempts": 5,
+    "autoForceUpload": true,
+    "similarityThreshold": 0.3,
+    "verticalNotice": { "enabled": false, "text": "" },
+    "sensitiveKeywords": ["断食", "辟谷", "轻断食", "生酮", "减重药物", "降脂药物", "催吐", "绝食", "代餐替代"]
+  },
+  "app": {
+    "schedule": { "enabled": false, "time": "09:30", "mode": "auto" },
+    "autoLaunch": false,
+    "closeToTray": true,
+    "notify": true
+  }
+}

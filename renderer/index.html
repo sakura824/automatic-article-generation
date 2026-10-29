@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mmbiz.qpic.cn">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公众号写作助手</title>
+<link rel="stylesheet" href="assets/fonts/all.min.css">
+<link rel="stylesheet" href="styles/app.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- ═══════════ 标题栏 ═══════════ -->
+  <header class="titlebar">
+    <div class="tb-left">
+      <div class="app-badge"><i class="fa-brands fa-weixin"></i></div>
+      <span class="app-name">公众号写作助手</span>
+      <span class="ver" id="verLabel">v2.4.2</span>
+    </div>
+    <div class="tb-right" style="display:flex;align-items:center;gap:12px;">
+      <span class="tray-pill" id="trayPill"><span class="dot dot-green"></span>托盘运行中 · 明天 09:30</span>
+      <div class="win-btns">
+        <button class="win-btn" data-win="min" title="最小化"><i class="fa-solid fa-minus"></i></button>
+        <button class="win-btn" data-win="max" title="最大化"><i class="fa-regular fa-square"></i></button>
+        <button class="win-btn close" data-win="close" title="关闭并最小化到托盘"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <!-- ═══════════ 侧边栏 ═══════════ -->
+    <aside class="sidebar">
+      <div class="nav-group">创作</div>
+      <button class="nav-item" data-nav="compose"><i class="fa-solid fa-pen-nib"></i>素材成文</button>
+      <button class="nav-item" data-nav="chat"><i class="fa-solid fa-comments"></i>对话共创</button>
+      <button class="nav-item" data-nav="radar"><i class="fa-solid fa-satellite-dish"></i>选题雷达</button>
+      <button class="nav-item" data-nav="pool"><i class="fa-solid fa-layer-group"></i>内容池</button>
+      <div class="nav-group">工作台</div>
+      <button class="nav-item active" data-nav="dashboard"><i class="fa-solid fa-gauge-high"></i>仪表盘</button>
+      <button class="nav-item" data-nav="history"><i class="fa-solid fa-clock-rotate-left"></i>历史记录</button>
+      <button class="nav-item" data-nav="logs"><i class="fa-solid fa-terminal"></i>运行日志</button>
+      <button class="nav-item" data-nav="settings"><i class="fa-solid fa-gear"></i>设置</button>
+      <div class="sidebar-foot">
+        <button class="btn-wizard" id="openWizard"><i class="fa-solid fa-wand-magic-sparkles"></i>配置向导</button>
+        <p class="side-tip">点击关闭窗口会最小化到托盘，每日任务照常执行。</p>
+      </div>
+    </aside>
+
+    <!-- ═══════════ 内容区 ═══════════ -->
+    <main id="viewport">
+
+      <!-- ── 仪表盘 ── -->
+      <section class="view on" data-view="dashboard">
+        <div class="view-head">
+          <div>
+            <h1>仪表盘</h1>
+            <p id="dashSub">2026年10月28日 星期三 · 上次同步 09:30</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-ghost" id="selfcheckBtn"><i class="fa-solid fa-shield-heart"></i>一键自检</button>
+            <button class="btn btn-ghost" id="openDraftbox"><i class="fa-brands fa-weixin"></i>打开草稿箱</button>
+          </div>
+        </div>
+
+        <div class="card hero">
+          <div class="hero-main">
+            <div class="hero-status" id="heroStatus">
+              <div class="status-ico" id="heroIco"><i class="fa-solid fa-check"></i></div>
+              <div>
+                <h2 id="heroTitle">今天的推文已上传到草稿箱</h2>
+                <div class="sub" id="heroSub">《修复分页 off-by-one：一行代码背后的边界思维》· 等你在公众号 App 里审阅发表</div>
+                <div class="meta" id="heroMeta">
+                  <span><i class="fa-regular fa-clock"></i> 09:30 自动执行</span>
+                  <span><i class="fa-solid fa-code-branch"></i> 3 个提交</span>
+                  <span><i class="fa-solid fa-feather"></i> 1,024 字</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" id="genBtn"><i class="fa-solid fa-bolt"></i>立即生成并上传</button>
+            <button class="btn btn-ghost" id="genOnlyBtn"><i class="fa-regular fa-eye"></i>仅生成预览</button>
+          </div>
+          <div class="hint" id="genOnlyNote" style="display:none;text-align:right;margin-top:6px;"></div>
+          <div class="gen-progress" id="genProgress">
+            <div class="gstep" data-gs="0"><span class="gi"><i class="fa-solid fa-code-branch"></i></span><span class="gl">收集仓库动态</span></div>
+            <div class="gstep-line"></div>
+            <div class="gstep" data-gs="1"><span class="gi"><i class="fa-solid fa-pen-nib"></i></span><span class="gl">AI 撰写文章</span></div>
+            <div class="gstep-line"></div>
+            <div class="gstep" data-gs="2"><span class="gi"><i class="fa-solid fa-paper-plane"></i></span><span class="gl">上传到草稿箱</span></div>
+          </div>
+        </div>
+
+        <!-- 四模式快捷入口（PRD v2 §6：素材成文 / 对话共创 / 全网聚合 / 仓库自动） -->
+        <div class="mode-grid">
+          <button class="card mode-card" data-goto="compose">
+            <span class="mi mi-brand"><i class="fa-solid fa-pen-nib"></i></span>
+            <h3>素材成文</h3>
+            <p>粘贴素材与今天的强调点，按你的文风画像成文。</p>
+            <span class="go">主路径<i class="fa-solid fa-arrow-right"></i></span>
+          </button>
+          <button class="card mode-card" data-goto="chat">
+            <span class="mi mi-blue"><i class="fa-solid fa-comments"></i></span>
+            <h3>对话共创</h3>
+            <p>想法还不成熟时，和 AI 多轮聊，随时整理成文章。</p>
+            <span class="go">进入对话<i class="fa-solid fa-arrow-right"></i></span>
+          </button>
+          <button class="card mode-card" data-goto="radar">
+            <span class="mi mi-amber"><i class="fa-solid fa-satellite-dish"></i></span>
+            <h3>选题雷达</h3>
+            <p>按关键词与权威白名单搜索全网，勾选热点综合成文。</p>
+            <span class="go">今日热点<i class="fa-solid fa-arrow-right"></i></span>
+          </button>
+          <div class="card mode-card" id="autoModeCard" tabindex="0" role="button">
+            <span class="mi mi-ink"><i class="fa-solid fa-code-branch"></i></span>
+            <h3>仓库自动</h3>
+            <p>定时读代码仓库增量提交自动生成并上传，想挂机再用。</p>
+            <span class="go" id="autoModeHint">立即生成并上传<i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="card stat"><div class="n"><span id="statStreak">12</span> <span style="font-size:13px;color:var(--text-3);font-weight:600;">天</span></div><div class="l">连续自动运行</div></div>
+          <div class="card stat"><div class="n"><span id="statMonth">18</span> <span style="font-size:13px;color:var(--text-3);font-weight:600;">篇</span><span class="trend" id="statTrend">+2 本周</span></div><div class="l">本月生成</div></div>
+          <div class="card stat"><div class="n"><span id="statRate">96</span><span id="statRateUnit" style="font-size:14px;">%</span></div><div class="l">上传成功率</div></div>
+        </div>
+
+        <div class="two-grid">
+          <div class="card card-pad" id="schedCard" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <div style="font-weight:700;font-size:14.5px;"><i class="fa-regular fa-clock" style="color:var(--brand-deep);margin-right:8px;"></i>每日定时任务</div>
+              <button class="switch" id="schedSwitch" role="switch" aria-checked="true" aria-label="定时任务开关"></button>
+            </div>
+            <p style="color:var(--text-3);font-size:12.5px;margin:2px 0 12px;" id="schedDesc">开启后每天在这个时间自动收集提交、生成文章并上传草稿箱。</p>
+            <div class="filter-row" id="schedModeRow" style="margin-bottom:14px;">
+              <button class="fchip on" data-sm="auto">仓库自动</button>
+              <button class="fchip" data-sm="pool">内容池</button>
+              <button class="fchip" data-sm="radar">选题雷达</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <span style="font-size:13px;font-weight:600;">每天</span>
+              <input type="time" class="time-input" id="schedTime" value="09:30" aria-label="执行时间" title="点这里选择每天执行的时间（24 小时制）">
+              <span style="font-size:12.5px;color:var(--text-3);">执行</span>
+              <span class="chip st-blue" id="nextRun"><i class="fa-solid fa-forward"></i>下次：明天 09:30</span>
+            </div>
+            <div class="banner banner-info" id="schedNote">
+              <i class="fa-solid fa-circle-info" style="margin-top:2px;"></i>
+              <span>到点时电脑需要开机。若当天没开机，下次启动应用会自动补跑当天任务。</span>
+            </div>
+          </div>
+
+          <div class="card card-pad">
+            <div style="font-weight:700;font-size:14.5px;margin-bottom:10px;"><i class="fa-solid fa-feather-pointed" style="color:var(--brand-deep);margin-right:8px;"></i>最近文章</div>
+            <div class="mini-list" id="recentList">
+              <div class="mini-item"><span class="d">10-28</span><span class="t">修复分页 off-by-one：一行代码背后的边界思维</span><span class="chip st-green">待发表</span></div>
+              <div class="mini-item"><span class="d">10-27</span><span class="t">给用户查询服务加上第一层缓存</span><span class="chip st-green">已发表</span></div>
+              <div class="mini-item"><span class="d">10-26</span><span class="t">限流器上线之后的取舍</span><span class="chip st-green">已发表</span></div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:12px;width:100%;" data-goto="history">查看全部历史<i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 创作（素材成文） ── -->
+      <section class="view" data-view="compose">
+        <div class="view-head">
+          <div><h1 id="composeTitle">素材成文</h1><p id="composeSub">粘贴素材，说一句今天想强调的点，AI 按你的文风画像成文，你审阅后发表。</p></div>
+          <div class="head-actions">
+            <span class="chip st-blue" id="composeSourceChip" style="display:none;"></span>
+            <button class="btn btn-ghost" id="composeNewBtn" style="display:none;"><i class="fa-solid fa-plus"></i>新建素材成文</button>
+            <button class="btn btn-ghost" id="composeSampleBtn"><i class="fa-solid fa-book-open"></i>文风画像</button>
+          </div>
+        </div>
+        <div class="compose-grid">
+          <!-- 左：素材区（仅「素材成文」模式显示；对话/雷达成文时该区域隐藏，避免误按素材重生成） -->
+          <div class="card card-pad" id="composeMaterialCard">
+            <div class="field">
+              <label>素材（要点 / 草稿 / 聊天记录 / 链接摘要 / 代码片段……）</label>
+              <textarea class="input" id="matInput" rows="12" placeholder="把今天的素材原样贴进来，越具体越好。AI 只提取事实与要点，按你的文风重新成文，不搬运原句。"></textarea>
+              <div class="hint" id="matCount">0 字</div>
+            </div>
+            <div class="field">
+              <label>今天想强调的点</label>
+              <input class="input" id="emphasisInput" placeholder="一句话即可，例如：强调先解决真实需求，再谈技术选型">
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <button class="btn btn-primary btn-lg" id="composeGenBtn"><i class="fa-solid fa-feather-pointed"></i>生成文章</button>
+              <span class="hint" id="composeGenHint" style="margin-top:0;">成文会自动注入文风画像与项目背景。</span>
+            </div>
+            <div class="hint" id="composeProgress" style="display:none;margin-top:8px;"></div>
+            <div id="composeGenResult" class="test-result"></div>
+          </div>
+          <!-- 右：成文预览与编辑 -->
+          <div class="card card-pad" id="editorCard">
+            <div id="editorEmpty" class="empty-state">
+              <i class="fa-regular fa-newspaper"></i>
+              <b>还没有成文</b>
+              <p>左侧贴好素材后点击「生成文章」，草稿会出现在这里，标题、摘要、正文都可以直接编辑。</p>
+            </div>
+            <div id="editorPanel" style="display:none;">
+              <div id="draftCoverBox" class="field" style="display:none;"><label>本篇自动封面</label><img id="draftCover" alt="本篇封面" style="width:100%;border-radius:12px;"></div>
+              <div class="field">
+                <label>标题</label>
+                <input class="input" id="draftTitle" maxlength="64">
+              </div>
+              <div class="field">
+                <label>摘要（显示在公众号列表页，≤118 字）</label>
+                <textarea class="input" id="draftDigest" rows="2" maxlength="118"></textarea>
+              </div>
+              <div class="field">
+                <label>正文（HTML，公众号排版）</label>
+                <div class="editor-tabs">
+                  <button class="fchip on" id="editModeBtn" data-em="edit">编辑</button>
+                  <button class="fchip" id="previewModeBtn" data-em="preview">预览</button>
+                </div>
+                <textarea class="input" id="draftBody" rows="14" style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12.5px;"></textarea>
+                <div class="art-body" id="draftPreview" style="display:none;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:8px;"></div>
+                <div class="hint" id="draftWords">—</div>
+              </div>
+              <div id="draftSimCard" style="display:none;"></div>
+              <div id="draftSourcesCard" style="display:none;"></div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary" id="draftUploadBtn"><i class="fa-solid fa-paper-plane"></i>上传到草稿箱</button>
+                <button class="btn btn-ghost" id="draftSaveBtn"><i class="fa-regular fa-floppy-disk"></i>保存修改</button>
+                <button class="btn btn-ghost" id="draftRegenBtn"><i class="fa-solid fa-arrows-rotate"></i>重新生成</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 对话共创 ── -->
+      <section class="view" data-view="chat">
+        <div class="view-head">
+          <div><h1>对话共创</h1><p>抛出想法，AI 追问细节、给结构建议；聊得差不多时一键整理成文章，带着上下文进编辑器。</p></div>
+          <div class="head-actions">
+            <button class="btn btn-ghost" id="chatNewBtn"><i class="fa-solid fa-plus"></i>新对话</button>
+            <button class="btn btn-primary" id="chatToComposeBtn"><i class="fa-solid fa-feather-pointed"></i>把这轮讨论整理成文章</button>
+          </div>
+        </div>
+        <div class="card card-pad chat-wrap">
+          <div class="chat-toolbar">
+            <span style="font-size:12.5px;color:var(--text-3);">会话</span>
+            <select class="input" id="chatSessionSel" style="width:auto;min-width:220px;padding:6px 12px;font-size:12.5px;"></select>
+            <button class="icon-btn danger" id="chatDeleteBtn" title="删除当前会话"><i class="fa-regular fa-trash-can"></i></button>
+            <span class="chip st-gray" id="chatMsgCount"><i class="fa-regular fa-comment-dots"></i>0 条</span>
+          </div>
+          <div class="chat-stream" id="chatStream">
+            <div class="chat-empty" id="chatEmpty">
+              <i class="fa-regular fa-comments"></i>
+              <b>从一个模糊的想法开始</b>
+              <p>例如「想写写怎么把深度工作落到每天的日程里」，AI 会追问细节、给出结构建议，聊清楚后点「把这轮讨论整理成文章」。</p>
+              <div class="chat-suggest">
+                <button class="fchip" data-suggest="想写写怎么把好习惯落到每天的日程里，先说结论再给方法">好习惯怎么落地</button>
+                <button class="fchip" data-suggest="聊聊为什么「一周见效」的说法不可靠，想讲清楚背后的道理">拆一个流行说法</button>
+                <button class="fchip" data-suggest="这周复盘了我的工作流程，想整理成一篇可执行的经验">工作流程复盘</button>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <textarea class="input" id="chatInput" rows="2" placeholder="Enter 发送，Shift + Enter 换行"></textarea>
+            <button class="btn btn-primary" id="chatSendBtn"><i class="fa-solid fa-paper-plane"></i>发送</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 选题雷达 ── -->
+      <section class="view" data-view="radar">
+        <div class="view-head">
+          <div><h1>选题雷达</h1><p>搜索全网选题，生成知识文章，或结合代码库自然推广你的系统；每篇自动生成正文配图和专属封面。</p></div>
+          <div class="head-actions">
+            <button class="btn btn-ghost" id="radarConfigBtn"><i class="fa-solid fa-sliders"></i>聚合来源配置</button>
+            <button class="btn btn-ghost" id="radarAutoBtn" title="按当前参数搜索、自动选排名最前的选题、成文并上传草稿箱"><i class="fa-solid fa-robot"></i>全自动跑一次</button>
+            <button class="btn btn-primary" id="radarFetchBtn"><i class="fa-solid fa-satellite-dish"></i>立即搜索</button>
+          </div>
+        </div>
+
+        <div class="card card-pad" style="margin-bottom:14px;">
+          <div class="field"><label for="radarKeywords">搜索关键词（空格、逗号或换行分隔）</label><textarea class="input" id="radarKeywords" rows="2" placeholder="科技 教育 生活方式"></textarea></div>
+          <div class="field"><label for="radarArticleMode">文章方式</label><select class="input" id="radarArticleMode"><option value="web">全网素材成文</option><option value="web-profile">全网素材 + 系统功能档案（省 Token）</option><option value="web-code">全网素材 + 代码库推广成文</option></select><div class="hint">纯全网模式不植入产品；档案模式不读代码库；代码库入口保留，按选题读取相关源码。</div></div>
+          <div id="radarCodeFields" style="display:none;">
+            <div class="field" id="radarRepoFields"><label for="radarRepoPath">代码库文件夹</label><div style="display:flex;gap:8px;"><input class="input" id="radarRepoPath" readonly placeholder="选择完整、已解压的项目文件夹"><button class="btn btn-ghost" id="radarPickRepo">选择代码库</button></div><div class="hint">可读取未提交的源码；按选题筛选相关功能，忽略依赖、构建产物和密钥文件。选中的代码摘录将发送给已配置的写作模型。</div></div>
+            <div class="field" id="radarProfileFields" style="display:none;"><label for="radarProfilePath">系统功能档案</label><div style="display:flex;gap:8px;"><input class="input" id="radarProfilePath" readonly placeholder="选择你编写的 .md 或 .txt 功能档案"><button class="btn btn-ghost" id="radarPickProfile">选择档案</button></div><div class="hint" id="radarProfileHint">选一次后记住路径，每次成文读取最新内容；不扫描代码库。档案较长时，本地按选题筛选最多约 6000 个字符。档案摘录会发送给已配置的写作模型。</div></div>
+            <div class="field"><label><input type="checkbox" id="radarImagesEnabled"> 加入我的素材图片</label><div id="radarAssetsFields" style="display:none;"><div style="display:flex;gap:8px;"><input class="input" id="radarImagesDir" readonly placeholder="选择包含界面截图、宣传图的素材目录"><button class="btn btn-ghost" id="radarPickAssets">选择图片文件夹</button></div><div class="hint">可选择整套系统档案目录，也可只选截图或宣传图文件夹。自动按主题加入最多2张，保留自动信息图；只用文件名和页面说明选图，不把整套图片发给写作模型。</div></div></div>
+            <div class="field"><label for="radarProductName">文章中使用的系统名称</label><input class="input" id="radarProductName" maxlength="60" placeholder="例如：效率工具"></div>
+            <div class="field"><label for="radarPromotion">想自然推广的方向（选填）</label><textarea class="input" id="radarPromotion" rows="2" maxlength="1000" placeholder="例如：结合功能亮点、使用流程和真实案例，说明如何把方法用起来"></textarea></div>
+          </div>
+          <div class="hint"><i class="fa-regular fa-images"></i> 自动视觉：每篇至少 2 张正文信息图 + 1 张 900 × 383 专属封面，无需额外生图 Key。</div>
+        </div>
+        <div class="banner banner-err" id="radarGuard">
+          <i class="fa-solid fa-heart-pulse" style="margin-top:2px;"></i>
+          <span><b>领域提示（可选）：</b>在设置中开启后，成文时会在文末追加你自定义的领域提示；敏感话题关键词命中时需人工确认后才会生成。</span>
+        </div>
+
+        <div class="card card-pad" style="margin-top:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+            <div style="font-weight:700;font-size:14.5px;"><i class="fa-solid fa-list-check" style="color:var(--brand-deep);margin-right:8px;"></i>今日热点清单 <span class="hint" id="radarFetchedAt" style="display:inline;"></span></div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="chip st-gray" id="radarSelCount"><i class="fa-solid fa-check-double"></i>已选 0/3</span>
+              <button class="btn btn-primary btn-sm" id="radarGenBtn" disabled><i class="fa-solid fa-feather-pointed"></i>综合成文</button>
+            </div>
+          </div>
+          <div id="radarEmpty" class="empty-state">
+            <i class="fa-solid fa-satellite-dish"></i>
+            <b>还没有今日热点</b>
+            <p id="radarEmptyHint">点击右上角「立即搜索」抓取一轮；关键词与来源白名单在「聚合来源配置」里维护。</p>
+          </div>
+          <div id="radarErr" class="test-result"></div>
+          <div class="radar-list" id="radarList"></div>
+          <div id="radarGenResult" class="test-result"></div>
+        </div>
+      </section>
+
+      <!-- ── 内容池 ── -->
+      <section class="view" data-view="pool">
+        <div class="view-head">
+          <div><h1>内容池</h1><p>把要写的题目排好队，定时任务每天取最早的一条自动成文并放进草稿箱。只填题目也能写，AI 会按题目展开、不编造数据。</p></div>
+          <div class="head-actions">
+            <span class="chip st-violet" id="poolStatChip">待写 0 · 已写 0</span>
+            <button class="btn btn-primary" id="poolRunNowBtn"><i class="fa-solid fa-bolt"></i>立即写一条</button>
+          </div>
+        </div>
+
+        <div class="banner banner-info" id="poolModeBanner" style="display:none;">
+          <i class="fa-solid fa-circle-info" style="margin-top:2px;"></i>
+          <span>定时任务当前是<b>仓库自动</b>模式（读 git 提交写推文）。要让内容池每天自动写，到「仪表盘 → 每日定时任务」把类型切换成「内容池」。</span>
+        </div>
+
+        <div class="compose-grid">
+          <div class="card card-pad">
+            <div class="field">
+              <label>题目（必填）</label>
+              <input class="input" id="poolTitle" maxlength="120" placeholder="例如：分级阅读怎么给 5 岁孩子选书">
+            </div>
+            <div class="field">
+              <label>素材（选填）</label>
+              <textarea class="input" id="poolMaterial" rows="9" placeholder="留空 = 只给题目，让 AI 自己展开（提示词会明确要求不编造数据、研究结论与机构名）；有素材就按素材写。"></textarea>
+              <div class="hint" id="poolMatCount">0 字</div>
+            </div>
+            <div class="field">
+              <label>想强调的点（选填）</label>
+              <input class="input" id="poolEmphasis" maxlength="500" placeholder="一句话即可，例如：强调先看孩子的兴趣，再谈级别">
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <button class="btn btn-primary" id="poolAddBtn"><i class="fa-solid fa-plus"></i>加入队列</button>
+              <span class="hint" style="margin-top:0;">队列按加入顺序写，先加的先写。</span>
+            </div>
+            <div id="poolAddResult" class="test-result"></div>
+          </div>
+
+          <div class="card card-pad">
+            <div class="filter-row" id="poolFilter" style="margin-bottom:12px;">
+              <button class="fchip on" data-pf="pending">待写</button>
+              <button class="fchip" data-pf="used">已写</button>
+              <button class="fchip" data-pf="skipped">已跳过</button>
+              <button class="fchip" data-pf="all">全部</button>
+            </div>
+            <div id="poolEmpty" class="empty-state">
+              <i class="fa-solid fa-layer-group"></i>
+              <b>队列还是空的</b>
+              <p>把接下来想发的题目一条条加进来，定时到点就会自动写第一条。</p>
+            </div>
+            <div id="poolList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 历史记录 ── -->
+      <section class="view" data-view="history">
+        <div class="view-head">
+          <div><h1>历史记录</h1><p>每天生成与上传的完整记录，漏传的稿子可以在这里补传。点「同步状态」后，已发表/已删除的文章会按公众号实况更新。</p></div>
+          <div class="head-actions">
+            <button class="btn btn-ghost" id="syncStatusBtn" title="读取草稿箱与发布列表，更新每篇文章的真实状态（已发表 / 已删除）"><i class="fa-solid fa-arrows-rotate"></i>同步状态</button>
+            <button class="btn btn-ghost" id="openOutDir"><i class="fa-regular fa-folder-open"></i>打开文章目录</button>
+          </div>
+        </div>
+        <div class="filter-row" id="histFilter">
+          <button class="fchip on" data-f="all">全部</button>
+          <button class="fchip" data-f="uploaded">待发表</button>
+          <button class="fchip" data-f="published">已发表</button>
+          <button class="fchip" data-f="generated">未上传</button>
+          <button class="fchip" data-f="failed">失败</button>
+          <button class="fchip" data-f="removed">已删除</button>
+          <button class="fchip" data-f="replaced">已打回</button>
+          <button class="fchip" data-f="skipped">无变更</button>
+        </div>
+        <div class="filter-row" id="histSrcFilter">
+          <button class="fchip on" data-sf="all">全部来源</button>
+          <button class="fchip" data-sf="素材">素材</button>
+          <button class="fchip" data-sf="对话">对话</button>
+          <button class="fchip" data-sf="自动">自动</button>
+          <button class="fchip" data-sf="聚合">聚合</button>
+          <button class="fchip" data-sf="内容池">内容池</button>
+        </div>
+        <div class="card" style="overflow:hidden;">
+          <table class="tbl">
+            <thead><tr><th style="width:96px;">日期</th><th>标题</th><th style="width:104px;">来源</th><th style="width:130px;">状态</th><th style="width:80px;">字数</th><th style="width:150px;text-align:right;">操作</th></tr></thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 运行日志 ── -->
+      <section class="view" data-view="logs">
+        <div class="view-head">
+          <div><h1>运行日志</h1><p>每次任务的完整执行轨迹，错误行已用红色标出。</p></div>
+          <div class="head-actions">
+            <button class="btn btn-ghost" id="copyLog"><i class="fa-regular fa-copy"></i>复制全部</button>
+            <button class="btn btn-ghost" id="clearLog"><i class="fa-regular fa-trash-can"></i>清空</button>
+            <button class="btn btn-ghost" id="exportLog"><i class="fa-solid fa-download"></i>导出</button>
+            <button class="btn btn-primary" id="simRun"><i class="fa-solid fa-play"></i>模拟运行一次</button>
+          </div>
+        </div>
+        <div class="filter-row" id="logFilter">
+          <button class="fchip on" data-lf="all">全部</button>
+          <button class="fchip" data-lf="INFO">信息</button>
+          <button class="fchip" data-lf="WARN">警告</button>
+          <button class="fchip" data-lf="ERROR">错误</button>
+        </div>
+        <div class="log-console" id="logConsole"></div>
+      </section>
+
+      <!-- ── 设置 ── -->
+      <section class="view" data-view="settings">
+        <div class="view-head">
+          <div><h1>设置</h1><p>所有密钥都经过系统级加密保存在本机，日志中只显示末 4 位。</p></div>
+        </div>
+        <div class="tab-bar" id="setTabs">
+          <button class="tab-btn on" data-tab="wx"><i class="fa-brands fa-weixin"></i> 公众号凭证</button>
+          <button class="tab-btn" data-tab="llm"><i class="fa-solid fa-microchip"></i> 大模型</button>
+          <button class="tab-btn" data-tab="content"><i class="fa-solid fa-pen-ruler"></i> 内容与文风</button>
+          <button class="tab-btn" data-tab="project"><i class="fa-solid fa-diagram-project"></i> 项目背景</button>
+          <button class="tab-btn" data-tab="aggregate"><i class="fa-solid fa-satellite-dish"></i> 聚合来源</button>
+          <button class="tab-btn" data-tab="app"><i class="fa-solid fa-sliders"></i> 应用</button>
+        </div>
+
+        <!-- 页签：公众号凭证 -->
+        <div class="panel on" data-panel="wx">
+          <div class="card card-pad" style="max-width:760px;">
+            <div class="form-grid">
+              <div class="field">
+                <label>AppID</label>
+                <input class="input" id="wxAppid" value="" placeholder="wx 开头的小写字母数字">
+                <div class="hint">公众平台「设置与开发 → 基本配置」页可查。</div>
+              </div>
+              <div class="field">
+                <label>AppSecret</label>
+                <div class="input-wrap">
+                  <input class="input has-eye" id="wxSecret" type="password" value="••••••••••••••••••••d41f" placeholder="重置后只显示一次，请妥善保存">
+                  <button class="input-eye" data-eye="wxSecret" title="显示/隐藏"><i class="fa-regular fa-eye"></i></button>
+                </div>
+                <div class="hint">存储时自动加密（Windows DPAPI）。</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="btn btn-soft" id="testWx"><i class="fa-solid fa-plug-circle-bolt"></i>测试连接</button>
+              <button class="btn btn-ghost" id="saveWx">保存更改</button>
+            </div>
+            <div class="hint" id="testWxHint" style="display:none;"></div>
+            <div id="testWxResult" class="test-result"></div>
+            <div class="banner banner-info" style="margin-top:18px;">
+              <i class="fa-solid fa-shield-halved" style="margin-top:2px;"></i>
+              <span><b>IP 白名单：</b>调用微信接口要求把本机公网 IP 加入白名单，否则报 40164 错误。</span>
+            </div>
+            <div class="card" style="box-shadow:none;margin-top:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--paper);">
+              <span style="font-size:12.5px;color:var(--text-3);">本机公网 IP</span>
+              <code style="font-size:14px;font-weight:700;letter-spacing:.03em;" id="localIp">待获取</code>
+              <button class="btn btn-ghost btn-sm" id="copyIp"><i class="fa-regular fa-copy"></i>复制</button>
+              <button class="btn btn-ghost btn-sm" id="ipWhitelistBtn"><i class="fa-solid fa-arrow-up-right-from-square"></i>打开白名单设置页</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 页签：大模型 -->
+        <div class="panel" data-panel="llm">
+          <div class="card card-pad" style="max-width:760px;">
+            <label style="display:block;font-size:12.5px;font-weight:600;color:var(--text-2);margin-bottom:8px;">服务商预设</label>
+            <div class="preset-chips" id="presetChips">
+              <button class="pchip on" data-url="https://open.bigmodel.cn/api/paas/v4"><i class="fa-solid fa-bolt"></i>智谱 BigModel</button>
+              <button class="pchip" data-url="https://api.deepseek.com"><i class="fa-solid fa-water"></i>DeepSeek</button>
+              <button class="pchip" data-url=""><i class="fa-solid fa-pen"></i>自定义</button>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>API 地址（Base URL）</label>
+                <input class="input" id="llmUrl" value="https://open.bigmodel.cn/api/paas/v4">
+              </div>
+              <div class="field">
+                <label>API Key</label>
+                <div class="input-wrap">
+                  <input class="input has-eye" id="llmKey" type="password" value="••••••••••••••••••9c2e" placeholder="在服务商开放平台申请">
+                  <button class="input-eye" data-eye="llmKey" title="显示/隐藏"><i class="fa-regular fa-eye"></i></button>
+                </div>
+              </div>
+              <div class="field">
+                <label>模型</label>
+                <select class="input" id="llmModel">
+                  <option selected>glm-4.6</option>
+                  <option>glm-4.5</option>
+                  <option value="glm-4.5-flash">glm-4.5-flash（免费）</option>
+                  <option>deepseek-chat</option>
+                  <option value="__custom">自定义…</option>
+                </select>
+                <input class="input" id="llmCustomModel" placeholder="输入自定义模型名称" style="display:none;margin-top:8px;">
+              </div>
+              <div class="field">
+                <label>创作温度：<b id="tempVal">0.7</b></label>
+                <input type="range" min="0" max="1" step="0.1" value="0.7" id="tempRange" style="width:100%;accent-color:var(--brand-deep);">
+                <div class="hint">越低越严谨，越高越发散。推荐 0.6 ~ 0.8。</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="btn btn-soft" id="testLlm"><i class="fa-solid fa-plug-circle-bolt"></i>测试连接</button>
+              <button class="btn btn-ghost" id="saveLlm">保存更改</button>
+            </div>
+            <div class="hint" id="testLlmHint" style="display:none;"></div>
+            <div id="testLlmResult" class="test-result"></div>
+            <div class="banner banner-info" style="margin-top:18px;">
+              <i class="fa-solid fa-circle-info" style="margin-top:2px;"></i>
+              <span>生成文章时，工具会把<b>代码提交说明与改动摘要</b>发送给你所配置的大模型服务商，用于撰写推文正文。</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 页签：内容与文风 -->
+        <div class="panel" data-panel="content">
+          <div class="card card-pad" style="max-width:760px;">
+            <div class="field">
+              <label>代码仓库路径（可选，仅仓库自动模式需要）</label>
+              <div style="display:flex;gap:10px;">
+                <input class="input" id="repoPath" placeholder="不使用仓库自动模式时可以不选" readonly style="flex:1;">
+                <button class="btn btn-ghost" id="browseRepo"><i class="fa-regular fa-folder-open"></i>浏览…</button>
+              </div>
+              <div class="hint">素材成文 / 对话共创 / 选题雷达都不需要它；只有「仓库自动」每天读新提交时才用，默认关闭。</div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>封面图</label>
+                <div class="cover-drop" id="coverDrop">
+                  <i class="fa-regular fa-image" style="font-size:18px;display:block;margin-bottom:6px;"></i>
+                  旧文章备用封面 · 新文章将自动生成专属封面
+                  <div class="cover-preview"><b>每日更新</b><span>新文章速递</span></div>
+                  <div class="hint" id="coverName" style="margin-top:8px;"></div>
+                </div>
+              </div>
+              <div>
+                <div class="field">
+                  <label>作者名</label>
+                  <input class="input" id="authorName" value="" placeholder="显示在文章作者位">
+                </div>
+                <div class="field">
+                  <label>AI 内容标识</label>
+                  <div style="display:flex;align-items:center;gap:12px;">
+                    <button class="switch" id="aiDisclosureSwitch" role="switch" aria-checked="true" aria-label="AI标识开关"></button>
+                    <input class="input" id="aiDisclosureText" value="本文由 AI 生成，经人工审阅修改" style="flex:1;">
+                  </div>
+                  <div class="hint">按《人工智能生成合成内容标识办法》要求，默认在文末展示。</div>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label>读者画像</label>
+              <textarea class="input" id="audienceInput" placeholder="例如：关注效率工具与学习方法的职场读者，想看到有出处、能落地的建议"></textarea>
+            </div>
+            <div class="field">
+              <label>风格补充指令</label>
+              <textarea class="input" id="styleExtraInput" placeholder="例如：多讲为什么，少贴代码；结尾可以带一点工程文化思考">像工程师写给同事看：讲清动机和取舍，不堆砌文件清单；标题不标题党。</textarea>
+            </div>
+
+            <!-- 文章样本库（PRD v2 §4：导入样文 / 一键分析文风画像 / 编辑 / 启用） -->
+            <div class="sub-card" id="samplesCard">
+              <div class="sub-card-head">
+                <div>
+                  <b><i class="fa-solid fa-book-open" style="color:var(--brand-deep);margin-right:6px;"></i>文章样本库</b>
+                  <p>导入你写过的文章（.txt / .md / .html，兼容公众号导出），一键分析出可编辑的文风画像；生成时自动挑选 2~3 篇启用中的样文作范文。</p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button class="btn btn-ghost btn-sm" id="samplePasteBtn"><i class="fa-solid fa-paste"></i>粘贴样文</button>
+                  <button class="btn btn-ghost btn-sm" id="sampleFolderBtn"><i class="fa-regular fa-folder-open"></i>导入文件夹</button>
+                  <button class="btn btn-soft btn-sm" id="sampleAnalyzeBtn"><i class="fa-solid fa-wand-magic-sparkles"></i>一键分析文风</button>
+                </div>
+              </div>
+              <div class="hint" id="sampleAnalyzeHint" style="display:none;"></div>
+              <div class="sample-list" id="sampleList"></div>
+
+              <div style="display:flex;align-items:center;gap:12px;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);">
+                <button class="switch" id="styleProfileSwitch" role="switch" aria-checked="false" aria-label="启用文风画像"></button>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">启用文风画像</div>
+                  <div style="font-size:11.5px;color:var(--text-3);">开启后，所有创作模式成文时注入下方画像与禁用词硬约束。</div>
+                  <div class="hint" id="styleProfileHint">先「一键分析文风」或在下方填写画像，这个开关才可用。</div>
+                </div>
+              </div>
+              <div class="form-grid" style="margin-top:14px;">
+                <div class="field">
+                  <label>开头习惯</label>
+                  <textarea class="input" id="spOpening" rows="2" placeholder="例如：多用场景或提问开头"></textarea>
+                </div>
+                <div class="field">
+                  <label>结尾习惯</label>
+                  <textarea class="input" id="spClosing" rows="2" placeholder="例如：以一句行动建议或清单收尾"></textarea>
+                </div>
+                <div class="field">
+                  <label>句长节奏</label>
+                  <textarea class="input" id="spRhythm" rows="2" placeholder="例如：长短句交替，段落 2~4 句"></textarea>
+                </div>
+                <div class="field">
+                  <label>口头禅 / 高频表达</label>
+                  <textarea class="input" id="spPetPhrases" rows="2" placeholder="例如：先说结论、值得记住一句话"></textarea>
+                </div>
+                <div class="field">
+                  <label>小标题风格</label>
+                  <textarea class="input" id="spSubtitle" rows="2" placeholder="例如：短句式小标题，不排比"></textarea>
+                </div>
+                <div class="field">
+                  <label>标点与表情</label>
+                  <textarea class="input" id="spPunct" rows="2" placeholder="例如：逗号为主，不堆 emoji"></textarea>
+                </div>
+              </div>
+              <div class="field">
+                <label>AI 味禁用词清单（逗号分隔，生成时硬约束）</label>
+                <textarea class="input" id="spBanned" rows="2" placeholder="首先其次总之, 值得注意的是, 深入探讨, 赋能, 整齐排比小标题"></textarea>
+                <div class="hint">画像由「一键分析文风」自动填充，也可以直接手动修改；保存更改后对所有创作模式生效。</div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="saveContent">保存更改</button>
+          </div>
+        </div>
+
+        <!-- 页签：项目背景（PRD v2 §3：所有创作模式共用） -->
+        <div class="panel" data-panel="project">
+          <div class="card card-pad" style="max-width:760px;">
+            <div class="field">
+              <label>系统介绍（是什么 / 解决什么问题 / 给谁看）</label>
+              <textarea class="input" id="projectDescInput" rows="5" placeholder="例如：我们做的是一个面向中小团队的工单系统，解决跨部门工单流转慢、责任不清的问题；读者是使用与运维它的一线工程师。"></textarea>
+            </div>
+            <div class="field">
+              <label>技术栈与常用术语表</label>
+              <textarea class="input" id="projectTechTermsInput" rows="6" placeholder="每行一条，AI 用词会与你的系统保持一致，例如：&#10;技术栈：Go / MySQL / Redis / K8s&#10;工单池、分派策略、SLA 计时器&#10;我们内部叫「接单」，不叫「认领」"></textarea>
+              <div class="hint">每行一条。术语表会让 AI 的用词与你的系统保持一致，不另造概念。</div>
+            </div>
+            <div class="banner banner-info">
+              <i class="fa-solid fa-circle-info" style="margin-top:2px;"></i>
+              <span>项目背景供<b>所有创作模式共用</b>（素材成文 / 对话共创 / 选题雷达 / 仓库自动），文章始终围绕你的系统展开。受众画像与风格补充指令在「内容与文风」页签，沿 v1 不变。</span>
+            </div>
+            <button class="btn btn-primary" id="saveProject">保存更改</button>
+          </div>
+        </div>
+
+        <!-- 页签：聚合来源（PRD v2 §5/§6：关键词、白名单、搜索 API Key、每日数量） -->
+        <div class="panel" data-panel="aggregate">
+          <div class="card card-pad" style="max-width:760px;">
+            <div class="field">
+              <label>搜索关键词</label>
+              <input class="input" id="aggKeywords" placeholder="用空格分隔，例如：科技 教育 生活方式">
+              <div class="hint">选题雷达每天按这些关键词搜索全网内容。</div>
+            </div>
+            <div class="field">
+              <label>来源白名单（每行一个域名或机构名）</label>
+              <textarea class="input" id="aggWhitelist" rows="7" placeholder="权威机构官网 / 权威媒体 / 学术库，例如：&#10;who.int&#10;gov.cn&#10;人民日报&#10;nature.com"></textarea>
+              <div class="hint">来源分级：L1 官方机构与权威媒体（如 who.int、人民日报）；L2 学术（PubMed / Nature）；L3 优质科普。白名单非空时，只有命中来源会进入热点清单。</div>
+            </div>
+            <div class="field">
+              <label>文末领域提示（选填）</label>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="switch" id="aggVerticalNoticeSwitch" role="switch" aria-checked="false" aria-label="领域提示开关"></button>
+                <input class="input" id="aggVerticalNoticeText" maxlength="200" placeholder="开启后，聚合文章文末追加这句提示" style="flex:1;">
+              </div>
+              <div class="hint">默认关闭；开启并填写后，聚合文章成文与上传前会在文末幂等补齐这句提示（最多 200 字）。</div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>搜索服务商</label>
+                <select class="input" id="aggSearchProvider">
+                  <option value="bocha" data-host="api.bochaai.com" selected>博查（独立服务，需单独 Key）</option>
+                  <option value="deepseek" data-host="api.deepseek.com">DeepSeek（厂商自带，大模型同为 DeepSeek 时免 Key）</option>
+                  <option value="bigmodel" data-host="open.bigmodel.cn">智谱 GLM（厂商自带，大模型同为智谱时免 Key）</option>
+                  <option value="tavily" data-host="api.tavily.com">Tavily（独立服务，需单独 Key）</option>
+                  <option value="serpapi" data-host="serpapi.com">SerpAPI（独立服务，需单独 Key）</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>每日聚合数量（1~50）</label>
+                <input class="input" id="aggDailyLimit" type="number" min="1" max="50" value="10">
+                <div class="hint">每天定时抓取、去重后保留的热点清单条数上限。</div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>搜索 API Key</label>
+                <div class="input-wrap">
+                  <input class="input has-eye" id="aggSearchKey" type="password" placeholder="所选服务商的 API Key">
+                  <button class="input-eye" data-eye="aggSearchKey" title="显示/隐藏"><i class="fa-regular fa-eye"></i></button>
+                </div>
+                <div class="hint" id="aggSearchKeyHint">存储时自动加密（Windows DPAPI），日志中只显示末 4 位。</div>
+              </div>
+              <div class="field">
+                <label>相似度自检阈值（0~1）</label>
+                <input class="input" id="aggSimThreshold" type="number" min="0.05" max="0.9" step="0.05" value="0.3">
+                <div class="hint">生成后与来源片段做 n-gram 重叠检测，超过阈值自动重写并提示。</div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:4px;">
+              <label>选题雷达全自动（定时类型选「选题雷达」时生效）</label>
+              <div class="form-grid">
+                <div class="field" style="margin-bottom:0;">
+                  <label style="font-weight:400;color:var(--text-2);">每次自动选用排名前</label>
+                  <select class="input" id="aggAutoPickCount">
+                    <option value="1" selected>1 条（推荐：选题最聚焦）</option>
+                    <option value="2">2 条</option>
+                    <option value="3">3 条</option>
+                  </select>
+                </div>
+                <div class="field" style="margin-bottom:0;">
+                  <label style="font-weight:400;color:var(--text-2);">相似度超标自动重写</label>
+                  <select class="input" id="aggAutoRewriteAttempts">
+                    <option value="2">2 次（与手动成文相同）</option>
+                    <option value="3">3 次</option>
+                    <option value="5" selected>5 次（推荐）</option>
+                    <option value="8">8 次</option>
+                    <option value="10">10 次</option>
+                  </select>
+                </div>
+                <div class="field" style="margin-bottom:0;">
+                  <label style="font-weight:400;color:var(--text-2);">敏感话题</label>
+                  <div style="display:flex;align-items:center;gap:10px;padding-top:7px;">
+                    <button class="switch" id="aggSkipSensitive" role="switch" aria-checked="true" aria-label="自动跳过敏感话题"></button>
+                    <span style="font-size:12.5px;color:var(--text-3);">自动跳过，留给人工处理</span>
+                  </div>
+                </div>
+              </div>
+              <div class="field" style="margin-top:12px;margin-bottom:0;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <button class="switch" id="aggAutoForceUpload" role="switch" aria-checked="true" aria-label="重写用尽仍超标时照常上传"></button>
+                  <span style="font-size:12.5px;color:var(--text-2);">重写用尽仍超标时<b>照常上传</b>（相似度报告留档在文章目录里供核查）</span>
+                </div>
+                <div class="hint">关闭后：重写用尽仍超标的稿子只保存不上传，等你人工改写。重写期间每次都会对照来源里重叠的句子做定向改写。</div>
+              </div>
+            </div>
+            <div class="banner banner-info">
+              <i class="fa-solid fa-circle-info" style="margin-top:2px;"></i>
+              <span>微信公众号文章不直接爬取（反爬与平台条款限制），通过搜索结果获取公开链接；抓取失败自动降级并如实记录，<b>不伪造素材</b>。</span>
+            </div>
+            <div class="banner banner-err">
+              <i class="fa-solid fa-heart-pulse" style="margin-top:2px;"></i>
+              <span><b>领域提示（可选）：</b>在设置中开启后，成文时会在文末追加你自定义的领域提示；敏感话题关键词命中时需人工确认后才会生成；素材来源清单仅内部核查，不随文章发布。</span>
+            </div>
+            <button class="btn btn-primary" id="saveAggregate">保存更改</button>
+          </div>
+        </div>
+
+        <!-- 页签：应用 -->
+        <div class="panel" data-panel="app">
+          <div class="card card-pad" style="max-width:560px;">
+            <div class="switch-row">
+              <div><div class="t">每日定时执行</div><div class="d">到点自动按当前定时类型（仓库自动 / 内容池 / 选题雷达）生成并上传</div></div>
+              <button class="switch" id="appScheduleSwitch" role="switch" aria-checked="true" aria-label="定时执行"></button>
+            </div>
+            <div class="switch-row">
+              <div><div class="t">每日执行时间</div><div class="d">点右侧时间可改成任意时刻（与仪表盘同一设置）</div></div>
+              <input type="time" class="time-input" id="appSchedTime" value="09:30" aria-label="每日执行时间">
+            </div>
+            <div class="switch-row">
+              <div><div class="t">定时任务类型</div><div class="d">仓库自动 / 内容池 / 选题雷达（与仪表盘同一设置）</div></div>
+              <select class="input" id="appSchedMode" style="width:170px;" aria-label="定时任务类型">
+                <option value="auto">仓库自动</option>
+                <option value="pool">内容池</option>
+                <option value="radar">选题雷达</option>
+              </select>
+            </div>
+            <div class="switch-row">
+              <div><div class="t">开机自动启动</div><div class="d">登录 Windows 后在后台运行，驻留托盘</div></div>
+              <button class="switch" id="appAutoLaunchSwitch" role="switch" aria-checked="true" aria-label="开机自启"></button>
+            </div>
+            <div class="switch-row">
+              <div><div class="t">关闭窗口最小化到托盘</div><div class="d" id="closeToTrayDesc">关闭按钮不退出应用，任务照常执行</div></div>
+              <button class="switch" id="appCloseToTraySwitch" role="switch" aria-checked="true" aria-label="托盘驻留"></button>
+            </div>
+            <div class="switch-row">
+              <div><div class="t">完成后系统通知</div><div class="d">上传成功 / 失败都弹 Windows 通知，可点开查看</div></div>
+              <button class="switch" id="appNotifySwitch" role="switch" aria-checked="true" aria-label="系统通知"></button>
+            </div>
+            <div class="switch-row">
+              <div><div class="t">导出配置（脱敏）</div><div class="d">导出不含密钥的配置文件，换机时快速恢复</div></div>
+              <button class="btn btn-ghost btn-sm" id="exportCfg"><i class="fa-solid fa-download"></i>导出</button>
+            </div>
+            <button class="btn btn-primary" id="saveApp" style="margin-top:18px;">保存更改</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ═══════════ 配置向导 ═══════════ -->
+  <div class="overlay" id="wizard">
+    <div class="wizard-card" role="dialog" aria-label="配置向导">
+      <div class="wiz-head">
+        <div class="wiz-dots" id="wizDots"></div>
+        <button class="wiz-close" id="wizClose" title="关闭向导"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="wiz-body">
+
+        <!-- 第 0 步：欢迎 -->
+        <div class="wiz-pane on" data-wp="0">
+          <div class="welcome-art"><i class="fa-brands fa-weixin"></i></div>
+          <h2 class="wiz-title">3 分钟，接通你的公众号创作工作台</h2>
+          <p class="wiz-sub">公众号写作助手有四种创作方式：粘贴素材成文（主力）、和 AI 对话共创、选题雷达按权威来源综合成文，以及可选的仓库自动。文章按你的文风画像写成，上传草稿箱后由你审阅发表。</p>
+          <div class="flow-pill fp-1"><span class="fi"><i class="fa-brands fa-weixin"></i></span><span><b>第一步</b> · 填公众号 AppID / AppSecret，测试连通</span></div>
+          <div class="flow-pill fp-2"><span class="fi"><i class="fa-solid fa-microchip"></i></span><span><b>第二步</b> · 配置大模型 API，负责撰写文章</span></div>
+          <div class="flow-pill fp-3"><span class="fi"><i class="fa-solid fa-folder-tree"></i></span><span><b>第三步</b> · 读者画像与（可选的）代码仓库，完成自检</span></div>
+          <p class="wiz-sub" style="margin-top:10px;">项目背景、文章样本库与文风画像、聚合来源（关键词 / 白名单 / 搜索 Key）可在完成向导后到「设置」里配置。</p>
+        </div>
+
+        <!-- 第 1 步：公众号凭证 -->
+        <div class="wiz-pane" data-wp="1">
+          <h2 class="wiz-title">连接你的公众号</h2>
+          <p class="wiz-sub">登录 mp.weixin.qq.com →「设置与开发 → 基本配置」，获取 AppID 并重置 AppSecret。</p>
+          <div class="field">
+            <label>AppID</label>
+            <input class="input" id="wizAppid" placeholder="wx 开头的 16 位小写字母数字">
+            <div class="hint" id="wizAppidHint" style="display:none;">先填写 AppID 才能继续下一步。</div>
+          </div>
+          <div class="field">
+            <label>AppSecret</label>
+            <div class="input-wrap">
+              <input class="input has-eye" id="wizSecret" type="password" placeholder="重置后只显示一次">
+              <button class="input-eye" data-eye="wizSecret"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+          <button class="btn btn-soft" id="wizTestWx"><i class="fa-solid fa-plug-circle-bolt"></i>测试连接</button>
+          <div class="hint" id="wizTestWxHint" style="display:none;"></div>
+          <div id="wizTestWxResult" class="test-result"></div>
+          <div class="banner banner-info">
+            <i class="fa-solid fa-shield-halved" style="margin-top:2px;"></i>
+            <span>首次连接会提示把本机 IP <code id="wizLocalIp">待获取</code> 加入白名单——测试失败时这里会展示你的 IP 和一键复制。</span>
+          </div>
+        </div>
+
+        <!-- 第 2 步：大模型 -->
+        <div class="wiz-pane" data-wp="2">
+          <h2 class="wiz-title">配置写文章的大模型</h2>
+          <p class="wiz-sub">四种创作模式（素材成文 / 对话共创 / 选题雷达 / 仓库自动）都由这个大模型撰写：你提供的素材、对话内容与检索到的来源要点会发送给该服务商。</p>
+          <div class="field">
+            <label>API 地址</label>
+            <input class="input" id="wizLlmUrl" value="https://open.bigmodel.cn/api/paas/v4">
+          </div>
+          <div class="field">
+            <label>API Key</label>
+            <div class="input-wrap">
+              <input class="input has-eye" id="wizLlmKey" type="password" placeholder="在开放平台申请，例如 bigmodel.cn">
+              <button class="input-eye" data-eye="wizLlmKey"><i class="fa-regular fa-eye"></i></button>
+            </div>
+            <div class="hint" id="wizLlmKeyHint" style="display:none;">先填写 API Key 才能继续下一步（免费模型 glm-4.5-flash 也可以）。</div>
+          </div>
+          <div class="field">
+            <label>模型</label>
+            <select class="input" id="wizLlmModel">
+              <option selected>glm-4.6</option>
+              <option value="glm-4.5-flash">glm-4.5-flash（免费）</option>
+              <option>deepseek-chat</option>
+            </select>
+          </div>
+          <button class="btn btn-soft" id="wizTestLlm"><i class="fa-solid fa-plug-circle-bolt"></i>测试连接</button>
+          <div class="hint" id="wizTestLlmHint" style="display:none;"></div>
+          <div id="wizTestLlmResult" class="test-result"></div>
+        </div>
+
+        <!-- 第 3 步：仓库与文风 -->
+        <div class="wiz-pane" data-wp="3">
+          <h2 class="wiz-title">读者画像与写作素材来源</h2>
+          <p class="wiz-sub">代码仓库是「仓库自动」模式的素材来源（该模式默认关闭）；素材成文 / 对话共创 / 选题雷达都不需要它，可以留空。</p>
+          <div class="field">
+            <label>代码仓库路径（可选，仅仓库自动模式需要）</label>
+            <div style="display:flex;gap:10px;">
+              <input class="input" id="wizRepo" placeholder="选择你的项目文件夹（可留空）" readonly>
+              <button class="btn btn-ghost" id="wizBrowse"><i class="fa-regular fa-folder-open"></i>浏览…</button>
+            </div>
+            <div class="hint" id="wizRepoHint" style="display:none;"></div>
+          </div>
+          <div class="field">
+            <label>读者画像（可留空使用默认）</label>
+            <textarea class="input" id="wizAudience" placeholder="你的读者是谁？关心什么？"></textarea>
+          </div>
+          <div class="field">
+            <label>风格补充（可留空）</label>
+            <textarea class="input" id="wizStyleExtra" placeholder="例如：口语一点、多讲为什么、不要堆代码"></textarea>
+          </div>
+        </div>
+
+        <!-- 第 4 步：自检 -->
+        <div class="wiz-pane" data-wp="4">
+          <h2 class="wiz-title">最后一键自检</h2>
+          <p class="wiz-sub">正在用真实接口验证整条链路，全绿就可以收工了。</p>
+          <div class="check-list" id="wizChecks">
+            <div class="check-item" data-ck="0"><span class="ci"><i class="fa-solid fa-key"></i></span>获取 access_token（验证 AppID / Secret / IP 白名单）<span class="cd"></span></div>
+            <div class="check-item" data-ck="1"><span class="ci"><i class="fa-regular fa-image"></i></span>上传封面永久素材<span class="cd"></span></div>
+            <div class="check-item" data-ck="2"><span class="ci"><i class="fa-solid fa-file-lines"></i></span>创建测试草稿<span class="cd"></span></div>
+            <div class="check-item" data-ck="3"><span class="ci"><i class="fa-solid fa-broom"></i></span>清理测试草稿<span class="cd"></span></div>
+          </div>
+          <div class="banner banner-ok" id="wizCheckDone" style="display:none;">
+            <i class="fa-solid fa-circle-check" style="margin-top:2px;"></i>
+            <span><b>全部通过！</b>配置已就绪：素材成文 / 对话共创 / 选题雷达随时可用；仓库自动默认关闭，需要时到仪表盘开启定时。</span>
+          </div>
+          <div class="banner banner-err" id="wizCheckFail" style="display:none;">
+            <i class="fa-solid fa-circle-exclamation" style="margin-top:2px;"></i>
+            <span id="wizCheckFailMsg"></span>
+          </div>
+        </div>
+      </div>
+      <div class="wiz-foot">
+        <span class="wiz-steps-label" id="wizStepLabel">欢迎</span>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" id="wizPrev" style="visibility:hidden;">上一步</button>
+          <button class="btn btn-primary" id="wizNext">开始配置<i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 文章预览弹窗 ═══════════ -->
+  <div class="modal" id="previewModal">
+    <div class="modal-card" role="dialog" aria-label="文章预览">
+      <div class="modal-head">
+        <div style="font-weight:700;"><i class="fa-regular fa-newspaper" style="color:var(--brand-deep);margin-right:8px;"></i>文章预览</div>
+        <button class="wiz-close" data-close="previewModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="art-cover"><b>每日更新</b></div>
+        <h3 class="art-title" id="pvTitle">修复分页 off-by-one：一行代码背后的边界思维</h3>
+        <div class="art-meta"><span><i class="fa-regular fa-user"></i> <span id="pvAuthor">演示作者</span></span><span><i class="fa-regular fa-calendar"></i> <span id="pvDate">2026-10-28</span></span><span><i class="fa-solid fa-feather"></i> <span id="pvWords">1,024 字</span></span></div>
+        <div class="art-body" id="pvBody">
+          <p>昨天下午，测试同学报了一个很刁钻的 bug：翻到第二页时，第一条数据总是和第一页的最后一条重复。排查了半小时，最后发现罪魁祸首是一行分页计算——页码从 0 开始还是从 1 开始，写代码的时候没对齐。</p>
+          <h3>问题出在哪</h3>
+          <p>接口约定页码从 1 开始，但内部的偏移计算仍按 0 开始写。当 page=1 时，offset 本应是 0，旧代码却跳过了前 size 条数据：</p>
+          <pre>start = page * size          # 旧：第 1 页直接跳过 size 条
+start = (page - 1) * size    # 新：与接口约定对齐</pre>
+          <h3>比修复更重要的</h3>
+          <p>这行代码之所以能活到今天，是因为缺少边界测试。这次顺手补上了三个用例：第一页、恰好整除的最后一页、超出总页数的空页。以后谁再动分页逻辑，CI 会替我们盯着。</p>
+          <p>今天的提交一共 3 个：分页修复、补充边界测试、更新接口文档。改动不大，但值得记住一句话：<b>约定要对齐在同一个地方，而不是散落在每个人的记忆里。</b></p>
+        </div>
+        <div class="art-foot" id="pvFoot">本文由 AI 生成，经人工审阅修改</div>
+      </div>
+      <div class="wiz-foot" style="background:var(--card);">
+        <span class="wiz-steps-label">预览为公众号排版示意</span>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" data-close="previewModal">关闭</button>
+          <button class="btn btn-ghost" id="pvEdit"><i class="fa-solid fa-pen-nib"></i>在编辑器中打开</button>
+          <button class="btn btn-primary" id="pvUpload"><i class="fa-solid fa-paper-plane"></i>上传到草稿箱</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 自检弹窗 ═══════════ -->
+  <div class="modal" id="checkModal">
+    <div class="modal-card" style="width:min(520px,100%);" role="dialog" aria-label="一键自检">
+      <div class="modal-head">
+        <div style="font-weight:700;"><i class="fa-solid fa-shield-heart" style="color:var(--brand-deep);margin-right:8px;"></i>一键自检</div>
+        <button class="wiz-close" data-close="checkModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-3);font-size:13px;margin:0 0 4px;">用真实接口验证配置，检查项之间互相独立，哪一项出问题就修哪里。</p>
+        <div class="check-list" id="modalChecks">
+          <div class="check-item" data-ck="0"><span class="ci"><i class="fa-solid fa-key"></i></span>获取 access_token<span class="cd"></span></div>
+          <div class="check-item" data-ck="1"><span class="ci"><i class="fa-regular fa-image"></i></span>上传封面永久素材<span class="cd"></span></div>
+          <div class="check-item" data-ck="2"><span class="ci"><i class="fa-solid fa-file-lines"></i></span>创建测试草稿<span class="cd"></span></div>
+          <div class="check-item" data-ck="3"><span class="ci"><i class="fa-solid fa-broom"></i></span>清理测试草稿<span class="cd"></span></div>
+        </div>
+        <div class="banner banner-err" id="modalCheckFail" style="display:none;">
+          <i class="fa-solid fa-circle-exclamation" style="margin-top:2px;"></i>
+          <span id="modalCheckFailMsg"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 粘贴样文弹窗 ═══════════ -->
+  <div class="modal" id="sampleModal">
+    <div class="modal-card" style="width:min(620px,100%);" role="dialog" aria-label="粘贴样文">
+      <div class="modal-head">
+        <div style="font-weight:700;"><i class="fa-solid fa-paste" style="color:var(--brand-deep);margin-right:8px;"></i>粘贴样文</div>
+        <button class="wiz-close" data-close="sampleModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>样本名称</label>
+          <input class="input" id="sampleNameInput" placeholder="例如：2026-10 技术栏目样文">
+        </div>
+        <div class="field">
+          <label>正文（.txt / .md / 公众号导出的 HTML 均可）</label>
+          <textarea class="input" id="sampleTextInput" rows="12" placeholder="把一篇你写过的文章原样贴进来"></textarea>
+        </div>
+        <div class="banner banner-info" style="margin-top:4px;">
+          <i class="fa-solid fa-circle-info" style="margin-top:2px;"></i>
+          <span>建议 3 篇以上同一栏目的样文，画像才稳定；启用中的样文会在生成时被挑选为范文。</span>
+        </div>
+      </div>
+      <div class="wiz-foot" style="background:var(--card);">
+        <span class="wiz-steps-label" id="sampleModalHint"></span>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" data-close="sampleModal">取消</button>
+          <button class="btn btn-primary" id="sampleSaveBtn"><i class="fa-solid fa-check"></i>保存样本</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toasts" aria-live="polite"></div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/compose.js"></script>
+<script src="js/views/chat.js"></script>
+<script src="js/views/radar.js"></script>
+<script src="js/views/pool.js"></script>
+<script src="js/views/history.js"></script>
+<script src="js/views/logs.js"></script>
+<script src="js/views/settings.js"></script>
+<script src="js/views/wizard.js"></script>
+</body>
+</html>
