@@ -1,6 +1,6 @@
 /* ============================================================
- * radar.js —— 选题雷达（PRD v2 §2 模式 D / §5 合规护栏 / §6）
- * 数据源（通道名与 payload 对齐 main/ipc.js v2 落地契约）：
+ * radar.js —— 选题雷达
+ * 数据源（通道名与 payload 对齐 main/ipc.js v2 落地约定）：
  *   radar:run    {}                     → {date, generatedAt, topics, keywordErrors, removedCount}
  *   radar:get    {date?}                → {radar:{date, topics, ...}}（无当日清单 → E_NOT_FOUND）
  *   radar:select {date, ids}            → {radar, changed}（勾选持久化，每次全量传）

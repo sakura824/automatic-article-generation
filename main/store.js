@@ -1,6 +1,6 @@
 'use strict';
 /**
- * 配置与状态持久化（契约 §1 store.js、§3 config/state、§7 决策 3）：
+ * 配置与状态持久化：
  * - config.json 落在 DATA（app.getPath('userData')）；合并/校验/脱敏一律走 src/core/config
  *   （defaultConfig/deepMerge/loadConfig/redactConfig/exportRedacted），本模块独占的唯一职责是
  *   AppSecret / API Key 的 safeStorage（Windows DPAPI）加解密：
@@ -8,7 +8,7 @@
  *   · 不可用 → 明文降级写入（encrypted:false）并在日志注明；
  *   · 解密失败 → 置空并报错，请用户到设置里重填；
  * - state.json 经 src/core/state 读写（tmp+rename 原子写，断电可恢复）；
- * - 任何出口（UI/日志/导出）密钥一律只露末 4 位（PRD §7）。
+ * - 任何出口（UI/日志/导出）密钥一律只露末 4 位。
  */
 const fs = require('fs');
 const path = require('path');
@@ -20,7 +20,7 @@ const CONFIG_FILE = 'config.json';
 const STATE_FILE = 'state.json';
 
 /**
- * 密钥位（PRD v2 §7：搜索 API Key 与 AppSecret/API Key 同一套加密机制）。
+ * 密钥位。
  * [配置内路径的目标分区, 键名]；分区对象缺失时 loadFullConfig 自动补 {}（旧 v1 配置文件兼容）。
  */
 const SECRET_PAIRS = [
@@ -38,7 +38,7 @@ function createStore({ dataDir, logger }) {
   const statePath = path.join(dataDir, STATE_FILE);
   const logsDir = path.join(dataDir, 'logs');
   const outputDir = path.join(dataDir, 'output');
-  // v2 增量数据目录（PRD v2 §7）：对话会话 / 文风样文 / 选题雷达清单。
+  // v2 增量数据目录：对话会话 / 文风样文 / 选题雷达清单。
   // 聚合与素材/对话成文产物落在 output/<date>/…（由 core/aggregate 与 main/articles 落盘）。
   const sessionsDir = path.join(dataDir, 'sessions');
   const styleSamplesDir = path.join(dataDir, 'style-samples');
@@ -163,7 +163,7 @@ function createStore({ dataDir, logger }) {
 
   // ---------------------------------------------------------------- 脱敏出口（委托 core，语义一致）
 
-  /** 界面脱敏：密钥只露末 4 位，如 ••••d41f；不携带 secrets 区块 */
+  /** 界面脱敏：密钥只露末 4 位，如 ••••abcd；不携带 secrets 区块 */
   function redactConfigForUi(cfg) {
     return config.redactConfig(cfg);
   }

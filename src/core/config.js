@@ -1,6 +1,6 @@
 'use strict';
 /**
- * config.js —— Config 结构、默认值、加载、校验、脱敏导入导出（契约 §3）。
+ * config.js —— Config 结构、默认值、加载、校验、脱敏导入导出。
  * 键名与设计稿控件一一对应；仅 Node 内置模块。
  * secrets 的加密落盘（store.js 的 safeStorage/DPAPI）由主进程负责：
  * config.json 里可存在顶层 `secrets` 区块，loadConfig 原样保留、exportRedacted 一律剔除。
@@ -14,13 +14,13 @@ const PRESETS = {
   deepseek: 'https://api.deepseek.com',
 };
 
-// PRD v2 §1/§5.4：产品已是通用创作工作台，AI 标识文案不再假设「仓库提交」来源
+// 产品已是通用创作工作台，AI 标识文案不再假设「仓库提交」来源
 const DEFAULT_AI_TEXT = '本文由 AI 生成，经人工审阅修改';
-// 读者画像默认留空：由用户按自己的垂类填写（PRD v2 §3）
+// 读者画像默认留空：由用户按自己的垂类填写
 const DEFAULT_AUDIENCE = '';
-/** PRD v2 §5.3：敏感话题关键词默认预设（isSensitiveTopic 回退用；用户可在 aggregate.sensitiveKeywords 覆盖）。 */
-const DEFAULT_SENSITIVE_KEYWORDS = ['断食', '辟谷', '轻断食', '生酮', '减重药物', '降脂药物', '催吐', '绝食', '代餐替代'];
-/** PRD v2 §7：聚合搜索 API 适配层可配的服务商。
+/** 敏感话题关键词默认预设：默认留空，不内置任何领域词表；用户可在 aggregate.sensitiveKeywords 按自己的领域自行配置。 */
+const DEFAULT_SENSITIVE_KEYWORDS = [];
+/** 聚合搜索 API 适配层可配的服务商。
  * 两类：native（厂商自带搜索，可复用大模型 Key）= deepseek / bigmodel；
  *      独立搜索服务（与用什么大模型无关，需单独 Key）= bocha / tavily / serpapi。 */
 const SEARCH_PROVIDERS = ['bocha', 'deepseek', 'bigmodel', 'tavily', 'serpapi'];
@@ -46,19 +46,19 @@ function defaultConfig() {
       material: '',
       emphasis: '',
     },
-    // v2.1：项目背景（PRD v2 §3，所有创作模式共用）
+    // v2.1：项目背景
     project: {
       description: '', // 系统是什么、解决什么问题、给谁看
       techTerms: '',   // 技术栈与常用术语表（AI 用词与系统保持一致）
       audience: '',    // 受众画像
       styleExtra: '',  // 风格补充指令
     },
-    // v2.1：文风画像（PRD v2 §4）；profile 由 style.js normalizeProfile 固定形状，可编辑
+    // v2.1：文风画像；profile 由 style.js normalizeProfile 固定形状，可编辑
     style: {
       profile: null,
       enabled: false,
     },
-    // v2.1：聚合来源配置（PRD v2 §5/§6 设置页）；searchApiKey 为密钥（store 加密落盘）
+    // v2.1：聚合来源配置；searchApiKey 为密钥（store 加密落盘）
     aggregate: {
       articleMode: '', // Legacy configs fall back to includeCode.
       profilePath: '',
@@ -82,7 +82,7 @@ function defaultConfig() {
       sensitiveKeywords: DEFAULT_SENSITIVE_KEYWORDS.slice(), // 敏感话题关键词（命中需人工确认，可覆盖）
     },
     app: {
-      // PRD v2 §2：仓库自动（C 模式）是可选项——「开关默认关闭，想挂机再用」。
+      // 仓库自动（C 模式）是可选项——「开关默认关闭，想挂机再用」。
       // 时间默认仍是设计稿的 09:30，用户开启后即按该时间执行。
       // mode（v2.2 / v2.4）：auto=仓库自动（默认，旧配置零改动）；pool=内容池取题自动成文；
       // radar=选题雷达自动（搜索→自动选前 N 条→成文→上传草稿箱）。
@@ -138,7 +138,7 @@ function loadConfig(dataDir) {
   return deepMerge(defaultConfig(), data);
 }
 
-/** 密钥脱敏：只显示末 4 位，如 ••••d41f；空值保持空。 */
+/** 密钥脱敏：只显示末 4 位，如 ••••abcd；空值保持空。 */
 function redactSecret(s) {
   const str = String(s || '');
   return str ? `••••${str.slice(-4)}` : '';
@@ -161,7 +161,7 @@ function exportRedacted(cfg) {
 
 /**
  * 导入脱敏配置：JSON 文本或对象 → 深合并到默认值。
- * 脱敏占位（••••xxxx）不是有效密钥，一律清空——导入后需重填（契约 §2 config:import）。
+ * 脱敏占位（••••xxxx）不是有效密钥，一律清空——导入后需重填。
  */
 function importRedacted(json) {
   let data = json;
@@ -186,7 +186,7 @@ function importRedacted(json) {
 }
 
 /**
- * 项目上下文（PRD v2 §3，所有创作模式共用）：
+ * 项目上下文：
  * project.* 为主；audience/styleExtra 兼容设置页「内容与文风」里的 content.audience/styleExtra
  * （v1 输入框），保证用户在那里填的受众/风格对 v2 素材/对话/聚合模式同样生效。
  */
@@ -218,7 +218,7 @@ function buildProjectBlock(project) {
 
 /**
  * 校验配置 → {ok, errors:[{field,message}]}。
- * 文案遵循 PRD §7：具体 + 可操作，禁用“操作失败”。
+ * 文案遵循 具体 + 可操作，禁用“操作失败”。
  * v2 增量字段（project/style/aggregate/content.material 等）只在「存在且非法」时报错，
  * 默认值/旧 v1 配置文件（缺这些键）不受影响——config:set 的 touched 过滤也依赖这一点。
  */
@@ -252,7 +252,7 @@ function validateConfig(cfg) {
     errors.push({ field: 'llm.temperature', message: '创作温度需为 0~2 之间的数字' });
   }
 
-  // 仓库路径可选（PRD v2 §2：代码仓库只是素材来源之一，仅仓库自动模式需要）：
+  // 仓库路径可选：
   // 空值不报错；填了就校验目录存在，避免选中后被移动/删除的路径静默失效。
   const repoPath = String(ct.repoPath || '').trim();
   if (repoPath && !fs.existsSync(repoPath)) {

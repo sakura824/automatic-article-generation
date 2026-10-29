@@ -1,6 +1,6 @@
 'use strict';
 /**
- * style.js —— 文风画像模块（PRD v2 §4 样本库 / 一键分析 / 生成时注入 / 二次改写）。
+ * style.js —— 文风画像模块。
  *
  * 职责：
  * - 样文解析（parseSample：.txt/.md/.html 兼容公众号导出）与统计（computeSampleStats）；
@@ -21,7 +21,7 @@ const { jsonFiles, readJson, writeJson, removeJson, ioError } = require('./persi
 const { callLlmMessages, LlmFormatError } = require('./llm');
 const { countWords } = require('./article');
 
-/** AI 味默认禁用词（PRD v2 §4：如"首先其次总总""值得注意的是""深入探讨"、排比八股等）。 */
+/** AI 味默认禁用词。 */
 const DEFAULT_BANNED_WORDS = [
   '首先', '其次', '再者', '总之', '综上所述', '总而言之', '值得注意的是',
   '需要指出的是', '值得一提的是', '深入探讨', '众所周知', '不难发现',
@@ -269,7 +269,7 @@ const QUALITATIVE_KEYS = ['opening', 'closing', 'sentenceRhythm', 'petPhrases', 
 const EMPTY_QUALITATIVE = QUALITATIVE_KEYS.reduce((acc, k) => ({ ...acc, [k]: '' }), {});
 
 /**
- * 画像固定形状归一（config.js 注释约定的契约点：cfg.style.profile 由本函数固定形状）。
+ * 画像固定形状归一（与 config.js 注释约定一致：cfg.style.profile 由本函数固定形状）。
  * 非对象 → E_INVALID_INPUT；缺失字段补默认值；bannedWords 去重去空；topBigrams 取前 N；
  * 未知字段丢弃。返回新对象（不修改入参）。
  */
@@ -383,7 +383,7 @@ function topicTerms(topic) {
 }
 
 /**
- * few-shot 范文挑选（PRD v2 §4.3：自动挑选 2~3 篇最相关样文）。
+ * few-shot 范文挑选。
  * 打分 = 与主题重叠的独立主题词数；同分按字数多者优先，再按入库顺序。
  * topic 为空或全部 0 分 → 按入库顺序取前 count 篇。最多返回 count（默认 3）。
  */
@@ -408,7 +408,7 @@ function pickFewShots(samples, topic, { count = 3 } = {}) {
 }
 
 /**
- * 生成时注入块（PRD v2 §4.3）：文风画像 + 范文 few-shot + 负面清单硬约束。
+ * 生成时注入块：文风画像 + 范文 few-shot + 负面清单硬约束。
  * 无画像时禁用词段回退默认清单（硬约束不随画像缺失而消失）；至少返回禁用词段。
  */
 function buildStyleInjection(profile, fewShots, { maxFewShotChars = DEFAULT_FEWSHOT_CHARS } = {}) {
@@ -460,7 +460,7 @@ function scanBannedWords(text, bannedWords = DEFAULT_BANNED_WORDS) {
 }
 
 /**
- * 从配置直接构造文风注入块（PRD v2 §4.3）——所有创作模式（含 v1 仓库自动管线）共用：
+ * 从配置直接构造文风注入块——所有创作模式（含 v1 仓库自动管线）共用：
  * 画像启用时 = 画像 + few-shot 范文 + 禁用词硬约束；未启用/无画像 → ''。
  */
 function styleInjectionFor(cfg, dataDir, topicText) {

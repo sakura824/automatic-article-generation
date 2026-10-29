@@ -1,10 +1,10 @@
 'use strict';
 /**
  * llm.js —— OpenAI 兼容 /chat/completions 调用与输出解析（移植 run_daily.py:293-374）。
- * 契约 §3/§4：
+ * 
  *  - buildPrompt(digest, cfg, dateStr)：===TITLE===/===DIGEST===/===BODY_HTML=== 约定格式，
  *    微信适配 HTML 约束、读者画像 + 风格补充；
- *  - callLlm(cfg, prompt)：Bearer 鉴权、超时 300s、网络类错误重试 2 次（PRD §8）；
+ *  - callLlm(cfg, prompt)：Bearer 鉴权、超时 300s、网络类错误重试 2 次；
  *  - parseLlmOutput：标题 58 字、摘要 118 字（超长加 …）截断，格式不符抛 LlmFormatError；
  *  - probeLlm：测试连接，返回模型名与延迟；
  *  - mock 模式（WECHAT_DAILY_MOCK=1）在入口短路到 mock.js 的确定性桩。
@@ -12,7 +12,7 @@
  */
 const { isMock, mockLlmCall } = require('./mock');
 
-/** 单次请求超时（契约：300s）。 */
+/** 单次请求超时。 */
 const LLM_TIMEOUT_MS = 300 * 1000;
 /** 总尝试次数 = 首次 + 网络类重试 2 次。 */
 const LLM_RETRY_ATTEMPTS = 3;
@@ -113,7 +113,7 @@ function llmConfigOf(cfg) {
   return (cfg && cfg.llm) || {};
 }
 
-const DEFAULT_AUDIENCE = '关注内容的读者'; // 未填写读者画像时的通用兜底（PRD v2 §3）
+const DEFAULT_AUDIENCE = '关注内容的读者'; // 未填写读者画像时的通用兜底
 
 /**
  * 微信适配 HTML 约束（v2 起 compose.js 等多处共用同一份文案，避免口径漂移）。
@@ -261,7 +261,7 @@ function parseLlmOutput(raw) {
 
 /**
  * 测试连接 → {model, latencyMs}。
- * 先校验非空（mock 模式下空值仍报 E_INVALID_INPUT，与 IPC 契约一致），mock 命中则直接成功。
+ * 先校验非空（mock 模式下空值仍报 E_INVALID_INPUT，与 IPC 约定一致），mock 命中则直接成功。
  */
 async function probeLlm(cfg, deps = {}) {
   const llm = llmConfigOf(cfg);

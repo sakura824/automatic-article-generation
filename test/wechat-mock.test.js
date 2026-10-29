@@ -1,6 +1,6 @@
 'use strict';
 /**
- * wechat-mock.test.js —— WECHAT_DAILY_MOCK=1 下的确定性桩（契约 §4）：
+ * wechat-mock.test.js —— WECHAT_DAILY_MOCK=1 下的确定性桩：
  * llm 与 wechat 全部网络函数短路到 mock；自检 4 步全 ok 且 detail 文案同设计稿 CHECK_LABELS。
  * 本文件在顶部打开 mock 开关（node --test 每个文件独立进程，互不影响）。
  */

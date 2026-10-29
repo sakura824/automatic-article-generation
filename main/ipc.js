@@ -1,6 +1,6 @@
 'use strict';
 /**
- * IPC 唯一接线处（契约 §2）：所有 ipcMain.handle 在此注册，统一信封
+ * IPC 唯一接线处：所有 ipcMain.handle 在此注册，统一信封
  * `{ok:true,data}` / `{ok:false,error:{code,message,hint?,errcode?}}`，绝不 reject。
  * code ∈ E_NO_CONFIG / E_INVALID_INPUT / E_NOT_FOUND / E_GIT / E_LLM / E_WECHAT /
  *        E_NET / E_IO / E_UNAVAILABLE / E_BUSY / E_CONFIRM_REQUIRED（v2：敏感话题需人工确认）。
@@ -11,7 +11,7 @@
  * 未就绪时报明确错误而不是崩溃；config（defaultConfig/validateConfig/importRedacted）
  * 已由 store 在启动时加载，此处直接使用。
  *
- * v2 增量通道（PRD v2 §7）：
+ * v2 增量通道：
  * - 对话共创 chat:list/new/open/send/delete（多轮 messages 持久化 + chat:segment 分段事件）；
  * - 文风画像 style:samples:* / style:analyze / style:profile:*；
  * - 选题雷达 radar:run/get/select（task:progress 进度事件）；
@@ -61,7 +61,7 @@ function isPrivateHost(hostname) {
 /**
  * 外链放行策略：
  * 1) 固定白名单（公众号/大模型服务商/仓库）——v1 引导链接；
- * 2) v2：选题雷达与历史来源清单里的「来源核查」链接（PRD v2 §5.2/§6）是任意公网域名，
+ * 2) v2：选题雷达与历史来源清单里的「来源核查」链接是任意公网域名，
  *    固定白名单无法覆盖。这类链接按「https + 公网域名」放行，拒绝内网段/本机/IP 直连与
  *    非常规端口，并把实际打开的 URL 记入运行日志（审计可追溯）。
  */
@@ -99,7 +99,7 @@ function isRedactedPlaceholder(v) {
 
 /**
  * 向导完成度检查（config:get 的 wizardDone、定时/补跑门控共用）。
- * PRD v2 §2：代码仓库只是素材来源之一——素材成文 / 对话共创 / 选题雷达都不依赖它，
+ * 代码仓库只是素材来源之一——素材成文 / 对话共创 / 选题雷达都不依赖它，
  * 因此「仓库路径」不再计入向导完成度，只在仓库自动（C 模式）真正要跑时才要求
  * （见 missingAutoConfig）。
  */
@@ -165,7 +165,7 @@ function todayKey() {
   return core('scheduler').dayKey(new Date());
 }
 
-/** 大模型前置检查（mock 模式同样要求非空，与 llm:test 契约一致）。 */
+/** 大模型前置检查（mock 模式同样要求非空，与 llm:test 约定一致）。 */
 function requireLlmConfig(cfg, action) {
   if (!cfg.llm || !String(cfg.llm.apiKey || '').trim()) {
     const e = new Error(`大模型 API Key 未填写：到「设置 → 大模型」填写后再${action}`);
@@ -174,7 +174,7 @@ function requireLlmConfig(cfg, action) {
   }
 }
 
-/** 文风注入块（PRD v2 §4.3）：实现收敛在 core/style.styleInjectionFor（管线与三条 v2 路径共用）。 */
+/** 文风注入块：实现收敛在 core/style.styleInjectionFor（管线与三条 v2 路径共用）。 */
 function buildStyleInjection(cfg, dataDir, topicText) {
   try {
     return core('style').styleInjectionFor(cfg, dataDir, topicText);
@@ -230,7 +230,7 @@ function splitSegments(text, segChars = 120, maxSegments = 100) {
   return segments;
 }
 
-/** 分段推送回复（PRD v2 §7「流式或分段返回」）：25ms 间隔逐段 chat:segment，最后一段带 last:true。 */
+/** 分段推送回复：25ms 间隔逐段 chat:segment，最后一段带 last:true。 */
 async function emitChatSegments(sendEvent, sessionId, content) {
   const segments = splitSegments(content);
   for (let i = 0; i < segments.length; i++) {
@@ -248,7 +248,7 @@ async function emitChatSegments(sendEvent, sessionId, content) {
 /** v2 对话单飞：同一会话同时只允许一个 chat:send（跨通道并发保护，E_BUSY）。 */
 const busyChats = new Set();
 
-/** 历史来源过滤值 → entry.origin 标签（PRD v2 §2：素材/对话/自动/聚合）。 */
+/** 历史来源过滤值 → entry.origin 标签。 */
 const ORIGIN_FILTERS = {
   material: '素材',
   chat: '对话',
@@ -272,7 +272,7 @@ function sourcesArrayOf(doc) {
 /** 应用内置默认封面（electron-builder.yml files 已打包 assets/**；asar 内 fs 可读）。 */
 const DEFAULT_COVER = path.join(__dirname, '..', 'assets', 'default_cover.png');
 
-/** 带超时与 2 次重试的 fetch（契约 §8：网络类失败自动重试 2 次） */
+/** 带超时与 2 次重试的 fetch */
 async function fetchWithRetry(url, { timeoutMs = 10000, retries = 2 } = {}) {
   let lastErr = null;
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -310,7 +310,7 @@ function registerIpcHandlers(deps) {
       if (!p || typeof p !== 'object' || Array.isArray(p)) {
         return fail('E_INVALID_INPUT', 'config:set 需要一个对象类型的 patch');
       }
-      // 密钥语义（契约 §2）：null → 保留原值；字符串 → 更新（脱敏占位串防御性视为保留）
+      // 密钥语义：null → 保留原值；字符串 → 更新（脱敏占位串防御性视为保留）
       const current = store.loadFullConfig();
       const merged = store.deepMerge(store.clone(current), p);
       if (p.wechat && 'appSecret' in p.wechat) {
@@ -395,7 +395,7 @@ function registerIpcHandlers(deps) {
       const win = getWindow();
       const r = await dialog.showSaveDialog(win, {
         title: '导出配置（不含密钥）',
-        defaultPath: 'wxgzh-daily-config.json',
+        defaultPath: 'wechat-article-assistant-config.json',
         filters: [{ name: 'JSON', extensions: ['json'] }],
       });
       if (r.canceled || !r.filePath) return ok({ path: null });
@@ -450,7 +450,7 @@ function registerIpcHandlers(deps) {
         return fail('E_INVALID_INPUT', 'AppID 与 AppSecret 均不能为空（留空表示沿用已保存的值）');
       }
       try {
-        const wechat = core('wechat'); // mock 判定在 core 入口（契约 §4）
+        const wechat = core('wechat'); // mock 判定在 core 入口
         const r = await wechat.getAccessToken(store.deepMerge(store.clone(stored), { wechat: { appId, appSecret } }));
         return ok({ expiresIn: r.expiresIn });
       } catch (e) {
@@ -479,7 +479,7 @@ function registerIpcHandlers(deps) {
 
     'net:public-ip': async () => {
       const mock = core('mock');
-      if (mock.isMock()) return ok({ ip: mock.mockPublicIp() }); // 契约 §4：与设计稿示例一致
+      if (mock.isMock()) return ok({ ip: mock.mockPublicIp() }); // 与设计稿示例一致
       try {
         const r = await fetchWithRetry('https://api.ipify.org?format=json');
         if (!r || !r.ip) throw new Error('响应缺少 ip 字段');
@@ -497,9 +497,9 @@ function registerIpcHandlers(deps) {
       }
       const state = store.loadState();
       try {
-        const wechat = core('wechat'); // mock 判定在 core 入口（契约 §4）
+        const wechat = core('wechat'); // mock 判定在 core 入口
         // core wechat.runSelfCheck 的 onStep 是单参数对象回调 {index,state,detail,errcode?}，
-        // 事件契约（IMPLEMENTATION §2）：selfcheck:progress {index:0..3, state, detail}。
+        // 事件约定：selfcheck:progress {index:0..3, state, detail}。
         const { items } = await wechat.runSelfCheck(cfg, state, (ev) => {
           if (!ev || typeof ev !== 'object') return;
           const payload = { index: ev.index, state: ev.state, detail: logger.scrub(ev.detail || '') };
@@ -513,7 +513,7 @@ function registerIpcHandlers(deps) {
         } catch (e) {
           logger.warn(`自检后封面缓存保存失败：${e.message}（下次自检可能重复上传封面）`);
         }
-        // 契约：selfcheck:run → {items:[...]}（数组）；core 已返回 {items}，此处只解包，不再二次包裹
+        // 约定：selfcheck:run → {items:[...]}（数组）；core 已返回 {items}，此处只解包，不再二次包裹
         return ok({ items: Array.isArray(items) ? items : [] });
       } catch (e) {
         return toError(e, 'E_WECHAT');
@@ -561,7 +561,7 @@ function registerIpcHandlers(deps) {
     },
 
     // v2：入参 {id}（创作产物，按 entry.dir 定位）优先；{date} 保持 v1 语义（output/<date>）。
-    // id 预览额外返回 sources/similarity（素材来源清单与相似度报告，PRD v2 §5.2：仅内部可见）。
+    // id 预览额外返回 sources/similarity（素材来源清单与相似度报告，仅内部可见）。
     'history:preview': (p) => {
       const cfg = store.loadFullConfig();
       if (p && p.id) {
@@ -615,7 +615,7 @@ function registerIpcHandlers(deps) {
         try {
           words = core('article').countWords(article.html || '');
         } catch (e) {
-          words = null; // 字数统计失败不阻塞预览（契约 §7 决策 7：展示用口径）
+          words = null; // 字数统计失败不阻塞预览
         }
       }
       return ok({
@@ -787,6 +787,7 @@ function registerIpcHandlers(deps) {
         maxRewrites: Number.isInteger(ag.autoRewriteAttempts) ? ag.autoRewriteAttempts : undefined,
         logger: bridgeLogger(logger),
       }, {
+        logger: bridgeLogger(logger),
         materializeIllustrations: (article, options) => require('./illustration').materializeArticle(article, { ...options, localAssets }),
       });
       if (!r.ok && r.needsConfirmation) {
@@ -901,7 +902,7 @@ function registerIpcHandlers(deps) {
       p = p || {};
       const patch = {};
       if (p.time !== undefined && p.time !== null) {
-        const sched = core('scheduler'); // parseTime 非法返回 null → E_INVALID_INPUT（契约 §6）
+        const sched = core('scheduler'); // parseTime 非法返回 null → E_INVALID_INPUT
         const t = sched.parseTime(String(p.time));
         if (!t) return fail('E_INVALID_INPUT', `定时时间格式应为 HH:MM（如 09:30），收到：${p.time}`);
         patch.time = String(p.time);
@@ -928,7 +929,7 @@ function registerIpcHandlers(deps) {
       const cfg = store.loadFullConfig();
       cfg.app.schedule = Object.assign({}, cfg.app.schedule, patch);
       store.saveFullConfig(cfg);
-      schedulerHost.refreshTray(); // 更新托盘 tooltip（契约 §2 schedule:set）
+      schedulerHost.refreshTray(); // 更新托盘 tooltip
       logger.info(`定时设置已更新：enabled=${cfg.app.schedule.enabled} time=${cfg.app.schedule.time} mode=${cfg.app.schedule.mode || 'auto'}`);
       return ok(schedulerHost.getScheduleInfo());
     },
@@ -978,7 +979,7 @@ function registerIpcHandlers(deps) {
           styleInjection: buildStyleInjection(cfg, store.paths.dataDir, text),
         });
         chat.saveSession(store.paths.dataDir, r.session); // chatReply 已把 assistant 消息并入 session
-        await emitChatSegments(sendEvent, id, r.reply.content); // 分段返回（PRD v2 §7）
+        await emitChatSegments(sendEvent, id, r.reply.content); // 分段返回
         logger.info(`对话回复完成：session=${id} model=${r.model}${r.dropped ? `（早期上下文截断 ${r.dropped} 条）` : ''}`);
         return ok({ session: r.session, reply: r.reply, model: r.model, dropped: r.dropped });
       } finally {
@@ -1067,7 +1068,7 @@ function registerIpcHandlers(deps) {
       }
       const r = await style.analyzeStyle(cfg, samples);
       cfg.style.profile = r.profile;
-      // PRD v2 §4.3「生成时注入」：分析出画像即启用，否则默认 enabled=false 会让
+      // 「生成时注入」：分析出画像即启用，否则默认 enabled=false 会让
       // 「导入样文 → 一键分析 → 成文」这条默认流程悄悄不注入；用户仍可在开关里停用。
       cfg.style.enabled = true;
       store.saveFullConfig(cfg);
@@ -1159,7 +1160,7 @@ function registerIpcHandlers(deps) {
     'radar:get': (p) => {
       const date = p && p.date ? requireDate(p.date) : todayKey();
       const radar = core('aggregate').loadRadar(store.paths.dataDir, date);
-      // 契约 §10：无当日清单 → E_NOT_FOUND。这是正常空态（渲染层 restoreToday 静默处理），
+      // 无当日清单 → E_NOT_FOUND。这是正常空态（渲染层 restoreToday 静默处理），
       // logIpc 对该通道的 E_NOT_FOUND 不记「IPC 失败」，避免每次启动刷一条告警。
       if (!radar) {
         return fail('E_NOT_FOUND', `${date} 还没有热点清单：点「刷新今日热点」生成`);
@@ -1304,11 +1305,12 @@ function registerIpcHandlers(deps) {
         state,
         logger: bridgeLogger(logger),
       }, {
-        // v2.3：插图渲染器由主进程注入（core 不能 import electron）
+        // v2.3：插图渲染器由主进程注入（core 不能 import electron）；logger 让配图失败至少留一条日志
+        logger: bridgeLogger(logger),
         materializeIllustrations: (article, options) => require('./illustration').materializeArticle(article, {...options,localAssets}),
       });
       if (!r.ok && r.needsConfirmation) {
-        // PRD v2 §5.3：敏感话题默认需人工确认才生成
+        // 敏感话题默认需人工确认才生成
         return fail('E_CONFIRM_REQUIRED', r.reason, { sensitiveKeywords: r.sensitiveKeywords });
       }
       // composeFromTopics 已落盘并入历史；补记产物目录（entry.dir）供预览/上传定位
@@ -1579,7 +1581,7 @@ function registerIpcHandlers(deps) {
       if (!w) return ok({});
       const cfg = store.loadFullConfig();
       if (cfg.app.closeToTray) {
-        w.hide(); // 契约 §2：点关闭 = 隐藏到托盘（设置里可改为退出）
+        w.hide(); // 点关闭 = 隐藏到托盘（设置里可改为退出）
         logger.info('窗口已隐藏到托盘（可在设置中改为直接退出）');
       } else {
         w.close(); // closeToTray=false → 真关闭 → window-all-closed → 退出

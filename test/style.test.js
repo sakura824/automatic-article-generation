@@ -50,7 +50,7 @@ test('parseSample：公众号导出 HTML 剥标签/噪声块/实体，正文保�
 });
 
 test('computeSampleStats：句子/标点/小标题/高频词，结果确定性', () => {
-  const text = ['## 开始训练前', '热身十分钟就够了。', '别迷信高强度！', '渐进超负荷才是关键？', '# 结', '渐进超负荷的原理很简单，渐进超负荷需要时间。'].join('\n');
+  const text = ['## 开始写周报前', '列要点十分钟就够了。', '别迷信模板！', '渐进打磨才是关键？', '# 结', '渐进打磨的原理很简单，渐进打磨需要时间。'].join('\n');
   const s = style.computeSampleStats(text);
   assert.strictEqual(s.paraCount, 6);
   assert.strictEqual(s.sentenceCount, 4);
@@ -163,7 +163,7 @@ test('loadProfile：cfg.style.profile → 归一；无 → null', () => {
 test('analyzeStyle：真实路径（注入 fetch）——本地统计 + LLM JSON 合并，禁用词并集', async () => {
   const samples = [
     style.addSample([], { name: 'A', text: SAMPLE_PLAIN, now: '2026-10-28T00:00:00Z' }).sample,
-    style.addSample([], { name: 'B', text: '训练计划的编排原则。\n先说结论，再给依据！', now: '2026-10-28T01:00:00Z' }).sample,
+    style.addSample([], { name: 'B', text: '任务计划的编排原则。\n先说结论，再给依据！', now: '2026-10-28T01:00:00Z' }).sample,
   ];
   const llmJson = JSON.stringify({
     opening: '场景式开头', closing: '清单式收尾', sentenceRhythm: '短句为主',

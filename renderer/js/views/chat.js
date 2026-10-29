@@ -1,5 +1,5 @@
 /* ============================================================
- * chat.js —— 对话共创（PRD v2 §2 模式 B / §7 会话通道）
+ * chat.js —— 对话共创
  * 数据源（通道名对齐 preload v2 白名单，core/chat.js 形状）：
  *   chat:list   {}                → {items:[{id,title,createdAt,updatedAt,turns,lastMessage}]}
  *   chat:new    {}                → 会话对象 {id,title,createdAt,updatedAt,messages}
@@ -241,7 +241,7 @@
     view.pendingError = null; // 新一轮发送开始，旧的失败草稿清理掉
     showTyping();
     try {
-      // ipc 契约：chat:send {sessionId, text, retry?} → {session, reply, model, dropped}
+      // ipc 约定：chat:send {sessionId, text, retry?} → {session, reply, model, dropped}
       const res = await App.api.invoke('chat:send', { sessionId: sendSessionId, text: content, retry: isRetry });
       const reply = res && (typeof res.reply === 'string'
         ? { role: 'assistant', content: res.reply }
@@ -327,7 +327,7 @@
       }
     });
 
-    // 分段流式回复（ipc 契约：chat:segment {sessionId, index, total, text, last}，text 为增量分段）
+    // 分段流式回复（ipc 约定：chat:segment {sessionId, index, total, text, last}，text 为增量分段）
     App.api.on('chat:segment', (seg) => {
       if (!seg || !seg.text || seg.sessionId !== view.sessionId) return;
       if ($$('#chatStream .chat-msg').length === 0) return;

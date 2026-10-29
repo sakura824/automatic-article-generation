@@ -27,6 +27,7 @@ const CFG = {
     dailyLimit: 10,
     similarityThreshold: 0.3,
     verticalNotice: { enabled: false, text: '' },
+    sensitiveKeywords: ['刷单', '博彩'],
   },
 };
 
@@ -461,18 +462,18 @@ test('runTopicRadar 错误路径：未配关键词 → E_INVALID_INPUT；全部�
 /* ------------------------------ n-gram 相似度自检 ------------------------------ */
 
 test('ngramSimilarity：完全相同 → 1；无关 → 0；部分重叠介于其间；短文本 → 0', () => {
-  const a = '规律运动与均衡饮食是最有共识的两大健康抓手';
+  const a = '规律复盘与优先级排序是最有共识的两大效率抓手';
   assert.strictEqual(aggregate.ngramSimilarity(a, a), 1);
   assert.strictEqual(aggregate.ngramSimilarity(a, '程序员今天提交了三个修复配置读取缺陷的提交记录'), 0);
-  const partial = aggregate.ngramSimilarity(a, '规律运动与均衡饮食很重要，但也要注意休息与心态');
+  const partial = aggregate.ngramSimilarity(a, '规律复盘与优先级排序很重要，但也要注意休息与心态');
   assert.ok(partial > 0 && partial < 1, `partial=${partial}`);
   assert.strictEqual(aggregate.ngramSimilarity('短', a), 0);
 });
 
 test('checkSimilarity：阈值两侧翻转 passed/needsRewrite；报告含雷同片段', () => {
-  const source = '世界卫生组织建议成年人每周进行至少一百五十分钟中等强度有氧运动，并每周两天以上的肌肉强化训练。';
-  const copied = '先说结论：本文只讨论公开共识。世界卫生组织建议成年人每周进行至少一百五十分钟中等强度有氧运动，这是底线的运动量。';
-  const original = '先说结论：本文只讨论公开共识。把运动拆进日常通勤和午休，比一次性补课更容易坚持，也更适合零基础的人。';
+  const source = '多数时间管理指南建议成年人每天安排至少九十分钟不被打扰的专注工作，并每周留出固定的复盘时段。';
+  const copied = '先说结论：本文只讨论公开共识。多数时间管理指南建议成年人每天安排至少九十分钟不被打扰的专注工作，这是底线的投入量。';
+  const original = '先说结论：本文只讨论公开共识。把大任务拆进每天的固定时段，比一次性补齐更容易坚持，也更适合零基础的人。';
 
   const bad = aggregate.checkSimilarity(copied, [source], { threshold: 0.3 });
   assert.strictEqual(bad.passed, false);
@@ -480,7 +481,7 @@ test('checkSimilarity：阈值两侧翻转 passed/needsRewrite；报告含雷同
   assert.ok(bad.maxRatio > 0.3);
   assert.strictEqual(bad.worstIndex, 0);
   assert.ok(bad.reports[0].runs.length >= 1, '应列出雷同片段');
-  assert.ok(bad.reports[0].runs.some((r) => r.text.includes('一百五十分钟')), '摘录来自原文');
+  assert.ok(bad.reports[0].runs.some((r) => r.text.includes('九十分钟')), '摘录来自原文');
 
   const good = aggregate.checkSimilarity(original, [source], { threshold: 0.3 });
   assert.strictEqual(good.passed, true);
@@ -523,7 +524,7 @@ test('buildSynthesisPrompt：护栏约定逐条存在（事实共识/署名/合�
     '只提取来源中的事实、共识、数据、结论',
     '禁止复用来源的句式、比喻、结构与独特表达',
     '署名出处',
-    '不做诊断、治疗、药物建议',
+    '不提供医疗、法律、投资等需要专业资质的建议',
     '不随文发布',
     '禁用词',
     '【项目背景】',
@@ -554,16 +555,16 @@ test('composeFromTopics：勾选数量校验（0 条与 4 条 → E_INVALID_INPU
 });
 
 test('composeFromTopics：敏感话题默认拦截，确认后放行', async () => {
-  const topics = [{ title: '生酮饮食 30 天实测', url: 'https://blog.example.com/keto' }];
+  const topics = [{ title: '网络博彩 30 天实测', url: 'https://blog.example.com/keto' }];
   const blocked = await aggregate.composeFromTopics(CFG, { topics, materials: [{ text: '材料' }] }, {});
   assert.strictEqual(blocked.ok, false);
   assert.strictEqual(blocked.needsConfirmation, true);
-  assert.deepStrictEqual(blocked.sensitiveKeywords, ['生酮']);
+  assert.deepStrictEqual(blocked.sensitiveKeywords, ['博彩']);
   const { fetch } = router([
-    [/blog\.example\.com/, () => res(200, '<h1>生酮研究</h1><p>生酮饮食的代谢机制研究概述。</p>')],
-    [/\/chat\/completions$/, () => res(200, { choices: [{ message: { content: fmt('关于生酮的共识', '只讲机制不讲方案。', '<p>正文</p>') } }] })],
+    [/blog\.example\.com/, () => res(200, '<h1>博彩研究</h1><p>网络博彩的成瘾机制研究概述。</p>')],
+    [/\/chat\/completions$/, () => res(200, { choices: [{ message: { content: fmt('关于博彩的共识', '只讲机制不讲方案。', '<p>正文</p>') } }] })],
   ]);
-  const allowed = await aggregate.composeFromTopics(CFG, { topics, materials: [{ text: '生酮机制材料' }], confirmSensitive: true }, { fetch, retryDelayMs: 0 });
+  const allowed = await aggregate.composeFromTopics(CFG, { topics, materials: [{ text: '博彩机制材料' }], confirmSensitive: true }, { fetch, retryDelayMs: 0 });
   assert.strictEqual(allowed.ok, true);
 });
 
@@ -660,7 +661,7 @@ test('composeFromTopics：抓取失败降级（snippet-only 如实记录，不�
 });
 
 test('composeFromTopics：相似度超阈值自动重写（第 2 稿通过）；重写提示词含上一稿与雷同片段', async () => {
-  const sourceText = '世界卫生组织建议成年人每周进行至少一百五十分钟中等强度有氧运动，并且每周进行两天以上肌肉强化训练，这对健康有明确收益。';
+  const sourceText = '时间管理领域有一条广泛共识：每天安排至少九十分钟不被打扰的专注工作，并每周留出固定的复盘时段，这对长期效率有明确收益。';
   let n = 0;
   const fetchImpl = async (url) => {
     if (/chat\/completions/.test(url)) {
@@ -677,14 +678,14 @@ test('composeFromTopics：相似度超阈值自动重写（第 2 稿通过）；
       }
       // 第二稿：换一种写法
       return res(200, {
-        choices: [{ message: { content: fmt('改写稿', '只保留事实换一种写法。', '<p>把运动拆进日常：通勤快走二十分钟，午休做两组自重训练，一周下来就够到权威建议的量。</p>') } }],
+        choices: [{ message: { content: fmt('改写稿', '只保留事实换一种写法。', '<p>把专注拆进日常：早上先完成最难的任务，午休做两次五分钟整理待办清单，一周下来就够到权威建议的量。</p>') } }],
       });
     }
     return res(200, `<h1>来源页</h1><p>${sourceText}</p>`);
   };
   const r = await aggregate.composeFromTopics(
     CFG,
-    { topics: [{ title: '每周运动量共识', url: 'https://src.example.com/a' }], threshold: 0.3, date: '2026-10-29', now: '2026-10-29T12:00:00Z', dataDir: tmpDir() },
+    { topics: [{ title: '每日专注时段共识', url: 'https://src.example.com/a' }], threshold: 0.3, date: '2026-10-29', now: '2026-10-29T12:00:00Z', dataDir: tmpDir() },
     { fetch: fetchImpl, retryDelayMs: 0 }
   );
   assert.strictEqual(r.ok, true);
@@ -817,11 +818,11 @@ test('dedupeResults：同题重复按权威度择优（L3 副本不能挤掉 L1/
 });
 
 test('composeFromTopics：敏感词只出现在摘要/素材里也要人工确认', async () => {
-  const topics = [{ id: 'topic-sum', title: '代餐替代怎么选', url: 'https://www.who.int/x', summary: '讨论生酮、断食与代餐替代的利弊' }];
-  const blocked = await aggregate.composeFromTopics(CFG, { topics, materials: [{ text: '生酮饮食概述' }] }, {});
+  const topics = [{ id: 'topic-sum', title: '刷单工具怎么选', url: 'https://www.who.int/x', summary: '讨论刷单、返利与代运营的利弊' }];
+  const blocked = await aggregate.composeFromTopics(CFG, { topics, materials: [{ text: '刷单平台概述' }] }, {});
   assert.strictEqual(blocked.ok, false);
   assert.strictEqual(blocked.needsConfirmation, true);
-  assert.ok(blocked.sensitiveKeywords.includes('生酮'));
+  assert.ok(blocked.sensitiveKeywords.includes('刷单'));
 });
 
 test('设置页下拉的 data-host 与 ADAPTERS.host 一致（防两处域名漂移）', () => {

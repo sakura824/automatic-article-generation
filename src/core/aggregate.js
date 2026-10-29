@@ -1,6 +1,6 @@
 'use strict';
 /**
- * aggregate.js —— 全网聚合成文模块（PRD v2 §2 模式 D / §5 合规护栏 / §6 选题雷达页）。
+ * aggregate.js —— 全网聚合成文模块。
  *
  * 职责：
  * - 搜索 API 适配层（博查 bocha / Tavily / SerpAPI 可配，transport 可注入，searchWeb）；
@@ -41,9 +41,9 @@ const SIMILARITY_N = 2;
 const REWRITE_ATTEMPTS = 2;
 /** 标题近似去重阈值（字符二元组包含率）。 */
 const TITLE_DUP_THRESHOLD = 0.8;
-/** 一次成文允许勾选的选题数上限（PRD v2 §2：勾选 1~3 条）。 */
+/** 一次成文允许勾选的选题数上限。 */
 const MAX_TOPICS_PER_BATCH = 3;
-/** 敏感话题关键词（PRD v2 §5.3）：默认预设见 config.DEFAULT_SENSITIVE_KEYWORDS，可经 aggregate.sensitiveKeywords 覆盖。 */
+/** 敏感话题关键词：默认预设见 config.DEFAULT_SENSITIVE_KEYWORDS，可经 aggregate.sensitiveKeywords 覆盖。 */
 const SENSITIVE_KEYWORDS = DEFAULT_SENSITIVE_KEYWORDS;
 
 function inputError(message) {
@@ -73,7 +73,7 @@ function isoNow(now) {
 /* ============================ 搜索 API 适配层 ============================ */
 
 /**
- * 搜索服务商适配层（PRD v2 §5.5 + v2.2 增量）。
+ * 搜索服务商适配层。
  *
  * 下拉里混着两类通道，语义不同，改之前必须分清：
  *   - native=true：**模型厂商自带**的搜索（DeepSeek / 智谱）。域名与厂商绑定，
@@ -418,7 +418,7 @@ async function fetchArticle(url, deps = {}) {
 /* ============================ 来源分级与去重排序 ============================ */
 
 /**
- * 来源分级（PRD v2 §5.6）：L1 指南与官方机构 / L2 学术 / L3 优质科普（默认兜底）。
+ * 来源分级：L1 指南与官方机构 / L2 学术 / L3 优质科普（默认兜底）。
  * 域名后缀匹配（host === d || host.endsWith('.' + d)）优先于名称关键词匹配。
  */
 const SOURCE_TIERS = [
@@ -539,7 +539,7 @@ function normalizeTitle(title) {
 }
 
 /**
- * 白名单过滤（PRD v2 §6 选题雷达：来源白名单）。whitelist 空 → 全部保留。
+ * 白名单过滤。whitelist 空 → 全部保留。
  * 条目既可以写域名（who.int / people.com.cn），也可以写机构名（人民日报 / 新华社）——
  * 设置页的 placeholder 就是这么承诺的：域名按 host 后缀匹配，机构名按来源 name 包含匹配。
  */
@@ -634,7 +634,7 @@ function recencyBonus(publishedAt, now) {
 }
 
 /**
- * 分级 + 热度 + 排序（PRD v2 §2：按权威度与热度排序）。
+ * 分级 + 热度 + 排序。
  * 热度 = 搜索排名项（55×(1 - rank/total)）+ 级别分（L1=30/L2=20/L3=8）+ 新近度，clamp 1~100。
  * 排序：级别升序 → 热度降序 → 搜索排名升序。返回带 {tier,label,matchedBy,heat,rawRank} 的新数组。
  */
@@ -664,7 +664,7 @@ function rankResults(items, { now } = {}) {
   return ranked;
 }
 
-/** 选题清单（PRD v2 §6：主题 + 一句话摘要 + 来源 + 热度）。limit 缺省取 cfg.aggregate.dailyLimit 语义（默认 10）。 */
+/** 选题清单。limit 缺省取 cfg.aggregate.dailyLimit 语义（默认 10）。 */
 function buildTopicList(rankedItems, { limit = 10 } = {}) {
   return rankedItems.slice(0, Math.max(1, limit)).map((it) => {
     const key = normalizeUrl(it.url);
@@ -889,7 +889,7 @@ function sharedRuns(draftText, sourceText, { n = SIMILARITY_N, maxRuns = 3, minR
 }
 
 /**
- * 相似度自检（PRD v2 §5.1 护栏）：草稿 vs 每个来源的 n-gram 双向覆盖率。
+ * 相似度自检：草稿 vs 每个来源的 n-gram 双向覆盖率。
  * ratio = max(|共享二元组|/来源集, |共享二元组|/草稿集)；任一来源 ratio > threshold → 未通过（返回重写信号）。
  * 返回 {threshold, n, passed, needsRewrite, maxRatio, worstIndex, reports:[{index, ratio, runs}]}。
  */
@@ -942,13 +942,13 @@ const FORMAT_RULES = `输出要求：
 
 /* buildProjectBlock 来自 core/config：与 chat 同口径，并把 content.audience/styleExtra 作为兜底并入项目上下文。 */
 
-/** 综合成文提示词（PRD v2 §5：只提取事实与共识；署名出处加分；敏感话题闸；来源清单不随文发布）。
+/** 综合成文提示词。
  * verticalNotice：可选的文末领域提示（来自 aggregate.verticalNotice，enabled 且 text 非空时才注入）。 */
 function buildSynthesisPrompt({ topics, materials, project, styleInjection, codeBlock, verticalNotice }) {
   const rules = [
     '1. 只提取来源中的事实、共识、数据、结论；禁止复用来源的句式、比喻、结构与独特表达，不得整句改写原文。',
     '2. 提到具体研究、指南、机构时署名出处（如「行业权威指南建议…」）；引用事实出处不等于抄袭；英文来源译写为中文综述。',
-    '3. 合规约束：不做诊断、治疗、药物建议；不承诺具体效果与期限，不使用「保证」类承诺性表述。',
+    '3. 合规约束：不提供医疗、法律、投资等需要专业资质的建议；不承诺具体效果与期限，不使用「保证」类承诺性表述。',
   ];
   const vn = String(verticalNotice || '').trim();
   if (vn) rules.push(`4. 文末固定追加一句提示：${vn}`);
@@ -1062,8 +1062,8 @@ async function composeFromTopics(cfg, opts = {}, deps = {}) {
     }
   }
 
-  // 敏感话题闸（PRD v2 §5.3：默认需人工确认才生成）。
-  // 判定输入覆盖标题 + 摘要 + 来源材料正文：只在摘要里写「生酮/断食」的选题同样要确认。
+  // 敏感话题闸（默认需人工确认才生成）。
+  // 判定输入覆盖标题 + 摘要 + 来源材料正文：敏感词只出现在摘要或素材正文里同样要确认。
   const sensitiveSource = [topics.map((t) => `${t.title || ''} ${t.summary || ''}`).join(' ')]
     .concat(materials.map((m) => String(m.text || '')))
     .join('\n');
@@ -1176,7 +1176,7 @@ async function composeFromTopics(cfg, opts = {}, deps = {}) {
   const words = countWords(article.html);
   const sourceList = {
     internal: true,
-    note: '素材来源清单：仅供人工核查使用，不随文章发布（PRD v2 §5.2）',
+    note: '素材来源清单：仅供人工核查使用，不随文章发布',
     date,
     batchId,
     generatedAt: isoNow(now),

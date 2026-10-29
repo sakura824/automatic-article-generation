@@ -11,16 +11,16 @@ const path = require('node:path');
 const config = require('../src/core/config');
 const { tmpDir } = require('./helpers');
 
-test('defaultConfig：结构与契约 §3 一致', () => {
+test('defaultConfig：结构与各面板字段约定一致', () => {
   const c = config.defaultConfig();
   assert.deepStrictEqual(c.wechat, { appId: '', appSecret: '' });
   assert.strictEqual(c.llm.baseUrl, config.PRESETS.bigmodel);
   assert.strictEqual(c.llm.model, 'glm-4.6');
   assert.strictEqual(c.llm.temperature, 0.7);
-  // PRD v2 §1：产品已改为通用创作工作台——AI 标识不再假设「仓库提交」来源，读者画像默认留空
+  // 产品已改为通用创作工作台——AI 标识不再假设「仓库提交」来源，读者画像默认留空
   assert.deepStrictEqual(c.content.aiDisclosure, { enabled: true, text: '本文由 AI 生成，经人工审阅修改' });
   assert.strictEqual(c.content.audience, '');
-  // PRD v2 §2：仓库自动（C 模式）默认关闭——「开关默认关闭，想挂机再用」；时间仍是设计稿的 09:30
+  // 仓库自动（C 模式）默认关闭——「开关默认关闭，想挂机再用」；时间仍是设计稿的 09:30
   // v2.2：mode 默认 auto（旧配置无该字段时按 auto 处理，行为不变）
   assert.deepStrictEqual(c.app.schedule, { enabled: false, time: '09:30', mode: 'auto' });
   assert.strictEqual(c.app.closeToTray, true);
@@ -66,7 +66,7 @@ test('validateConfig：默认配置报缺项且文案具体可操作；完整配
   assert.ok(fields.includes('wechat.appId'));
   assert.ok(fields.includes('wechat.appSecret'));
   assert.ok(fields.includes('llm.apiKey'));
-  // PRD v2 §2：代码仓库只是素材来源之一——空值不再算缺项（仅仓库自动模式需要，默认关闭）
+  // 代码仓库只是素材来源之一——空值不再算缺项（仅仓库自动模式需要，默认关闭）
   assert.ok(!fields.includes('content.repoPath'), '仓库路径可选，不应在默认配置里报缺');
   for (const e of r0.errors) {
     assert.ok(e.message.length > 10, '错误文案必须具体');
@@ -89,14 +89,14 @@ test('validateConfig：默认配置报缺项且文案具体可操作；完整配
   const r2 = config.validateConfig(bad);
   assert.ok(r2.errors.some((e) => e.field === 'content.repoPath' && /不存在/.test(e.message)));
 
-  // 仓库路径留空 = 合法（素材/对话/雷达三模式不依赖仓库，PRD v2 §2）
+  // 仓库路径留空 = 合法（素材/对话/雷达三模式不依赖仓库，）
   const noRepo = validConfig();
   noRepo.content.repoPath = '';
   assert.deepStrictEqual(config.validateConfig(noRepo), { ok: true, errors: [] });
 });
 
 test('redactSecret / redactConfig：只留末 4 位，剔除顶层 secrets 块', () => {
-  assert.strictEqual(config.redactSecret('abcdefghd41f'), '••••d41f');
+  assert.strictEqual(config.redactSecret('abcdefghabcd'), '••••abcd');
   assert.strictEqual(config.redactSecret(''), '');
   const c = validConfig();
   c.secrets = { appSecretEnc: 'Zm9v' };

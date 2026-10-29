@@ -1,6 +1,6 @@
 'use strict';
 /**
- * 托盘（契约 §1 tray.js、§7 决策 8）：
+ * 托盘：
  * - 图标用 nativeImage 从 assets/default_cover.png 缩放生成（Windows 托盘 16×16）；
  * - 左键单击 = 打开主界面，右键 = 菜单（打开主界面 / 立即生成并上传 / 暂停定时 / 退出）；
  * - tooltip 由 scheduler-host 刷新：「公众号写作助手 · 下次：明天 09:30」。

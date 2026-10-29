@@ -13,12 +13,12 @@
 
   const { $, $$ } = App;
 
-  /* ---------------- 模式标注（契约 §4：界面标注演示模式） ---------------- */
+  /* ---------------- 模式标注：界面标注演示模式 ---------------- */
   if (App.demo) {
     document.body.classList.add('demo');
-    document.title = '公众号写作助手 · 交互设计稿';
+    document.title = '公众号写作助手 · 演示模式';
     const ver = $('#verLabel');
-    if (ver) ver.textContent = 'v2.1.0 · 演示模式';
+    if (ver) ver.textContent = '演示模式';
   } else {
     document.body.classList.add('electron');
   }
@@ -44,7 +44,7 @@
     replaced:  { label: '已打回 · 重写',   cls: 'st-violet', short: '已打回' },
   };
 
-  /* ---------------- v2：历史来源标注（PRD v2 §2：素材/对话/自动/聚合） ----------------
+  /* ---------------- v2：历史来源标注 ----------------
    * 键名对齐 core state.js ORIGIN_VALUES（中文枚举）；v1 老记录缺 origin 按「自动」兜底。 */
   App.SOURCE = {
     '素材': { label: '素材成文', cls: 'st-blue',  short: '素材' },
@@ -54,7 +54,7 @@
     '内容池': { label: '内容池定时', cls: 'st-violet', short: '内容池' },
   };
 
-  /** 仓库自动（C 模式）是否已具备运行条件：需要配置代码仓库路径（PRD v2 §2） */
+  /** 仓库自动（C 模式）是否已具备运行条件：需要配置代码仓库路径 */
   App.autoConfigMissing = function () {
     const c = (App.state.cfg && App.state.cfg.content) || {};
     return !String(c.repoPath || '').trim();
@@ -63,7 +63,7 @@
   /** v2：来源兜底（v1 老记录与缺省 origin 字段一律按仓库自动） */
   App.sourceOf = function (s) { return App.SOURCE[s] || App.SOURCE['自动']; };
 
-  /** v2：选题雷达来源分级（PRD v2 §5.6：L1 官方 / L2 学术 / L3 科普） */
+  /** v2：选题雷达来源分级 */
   App.RADAR_LEVEL = {
     L1: { label: 'L1 官方', cls: 'lv-chip lv-l1' },
     L2: { label: 'L2 学术', cls: 'lv-chip lv-l2' },
@@ -82,7 +82,7 @@
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   };
 
-  /* ---------------- Toast（PRD F3：失败 Toast 支持「查看日志」跳转） ---------------- */
+  /* ---------------- Toast ---------------- */
   App.toast = function (msg, type = 'ok', action = null) {
     const box = $('#toasts');
     // 同一时刻只保留 1 条 toast：连续操作时多条竖向叠加会压住标题栏右侧的主动作按钮
@@ -121,7 +121,7 @@
     return raw;
   };
 
-  /** 渲染层单一路径的 API 错误处理（契约 §2） */
+  /** 渲染层单一路径的 API 错误处理 */
   App.handleErr = function (err, fallbackMsg, action) {
     const e = (err && err.code) ? err : { message: (err && err.message) || fallbackMsg || '操作失败' };
     const msg = e.message || fallbackMsg || '操作失败';
@@ -130,7 +130,7 @@
     console.error('[api]', e.code || '', e.errcode || '', msg, e.hint || '');
   };
 
-  /* ---------------- 按钮忙碌态（PRD §7：测试中显示正在做什么） ---------------- */
+  /* ---------------- 按钮忙碌态 ---------------- */
   App.setBusy = function (btn, busyHtml) {
     const original = btn.innerHTML;
     btn.disabled = true;
@@ -149,7 +149,7 @@
     return '<div class="banner ' + cls + '"><i class="fa-solid ' + icon + '" style="margin-top:2px;"></i><span>' + html + '</span></div>';
   };
 
-  /** 40164 专项卡（PRD §10：捕获后展示当前 IP + 复制按钮 + 后台直达链接） */
+  /** 40164 专项卡 */
   App.ipWhitelistCard = function (ip) {
     return '' +
       '<div class="card" style="box-shadow:none;margin-top:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--paper);">' +
@@ -382,7 +382,7 @@
     if (VIEW_NAMES.includes(h)) App.showView(h);
     if (h === 'wizard' && App.wizard && App.wizard.open) App.wizard.open();
 
-    // 首次使用：检测到无配置 → 自动进入向导（PRD F1）
+    // 首次使用：检测到无配置 → 自动进入向导
     if (!App.demo && App.state.wizardDone === false && App.wizard && App.wizard.open) {
       App.wizard.open();
     }

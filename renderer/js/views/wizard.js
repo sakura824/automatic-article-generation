@@ -2,7 +2,7 @@
  * wizard.js —— 配置向导（5 屏：欢迎 → 公众号 → 大模型 → 内容 → 自检完成）
  * 数据源：config:get（回填）/ config:set（第 3→4 屏保存）/ wechat:test / llm:test /
  *        dialog:pick-repo / selfcheck:run + selfcheck:progress 事件
- * PRD F1：每步可即时测试；完成页自动跑一键自检；完成后进入仪表盘。
+ * 每步可即时测试；完成页自动跑一键自检；完成后进入仪表盘。
  * ============================================================ */
 (function () {
   'use strict';
@@ -30,7 +30,7 @@
     if (step === 3) updateRepoGate();
   }
 
-  /* ---------------- 禁用态与原因（PRD §7） ---------------- */
+  /* ---------------- 禁用态与原因 ---------------- */
   function setGate(btnId, hintId, reason) {
     const btn = $('#' + btnId);
     const hint = $('#' + hintId);
@@ -70,7 +70,7 @@
     setGate('wizNext', 'wizLlmKeyHint', canTest ? '' : '先填写 API Key 才能继续下一步（免费模型 glm-4.5-flash 也可以）。');
   }
   function updateRepoGate() {
-    // PRD v2 §2：代码仓库只是素材来源之一——素材成文 / 对话共创 / 选题雷达都不需要它，
+    // 代码仓库只是素材来源之一——素材成文 / 对话共创 / 选题雷达都不需要它，
     // 只有「仓库自动」模式（默认关闭）才要，因此这里不再强制必选。
     setGate('wizNext', 'wizRepoHint', '');
   }
@@ -147,7 +147,7 @@
     if (cfg.content.author === undefined) cfg.content.author = '';
     if (!cfg.content.aiDisclosure) cfg.content.aiDisclosure = { enabled: true, text: '本文由 AI 生成，经人工审阅修改' };
     if (!cfg.app) cfg.app = { schedule: { enabled: false, time: '09:30' }, autoLaunch: true, closeToTray: true, notify: true };
-    // 「仓库自动」默认关闭（PRD v2 §2）；已存在（含用户显式开启过）的配置原样保留
+    // 「仓库自动」默认关闭；已存在（含用户显式开启过）的配置原样保留
     if (cfg.app.schedule && typeof cfg.app.schedule.enabled !== 'boolean') cfg.app.schedule.enabled = false;
     return cfg;
   }
@@ -200,7 +200,7 @@
       return;
     }
     if (step === 3) {
-      // PRD F1：完成页自动一键自检；先持久化向导内配置
+      // 完成页自动一键自检；先持久化向导内配置
       saving = true;
       const restore = App.setBusy($('#wizNext'), App.BUSY_ICON + '正在保存配置…');
       let patch;
@@ -275,7 +275,7 @@
     $('#wizTestLlm').addEventListener('click', testLlm);
     $('#wizBrowse').addEventListener('click', async () => {
       try {
-        // 契约（IMPLEMENTATION §2）：dialog:pick-repo → {path|null}，不能把整个对象塞进 input.value
+        // 约定：dialog:pick-repo → {path|null}，不能把整个对象塞进 input.value
         const picked = await App.api.invoke('dialog:pick-repo');
         const p = typeof picked === 'string' ? picked : (picked && picked.path) || '';
         if (p) {

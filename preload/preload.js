@@ -1,16 +1,16 @@
 'use strict';
 /**
- * 预加载桥（契约 §1 C、§2）：只做通道白名单转发，无任何业务逻辑。
+ * 预加载桥：只做通道白名单转发，无任何业务逻辑。
  * 渲染层拿到 window.api.invoke(channel, payload) / window.api.on(channel, cb)；
  * 未在白名单内的通道一律返回统一错误信封，不触发 ipcRenderer。
  *
- * v2 增量（PRD v2 §7）：对话会话（chat:*）、文风画像（style:*）、选题雷达（radar:*）、
+ * v2 增量：对话会话（chat:*）、文风画像（style:*）、选题雷达（radar:*）、
  * 创作成文（compose:*）、样文选择对话框（dialog:pick-samples）；
  * 事件新增 chat:segment（对话分段返回）与 task:progress（雷达/成文进度）。
  */
 const { contextBridge, ipcRenderer } = require('electron');
 
-/** 允许 invoke 的通道 = 契约 §2 全表 + v2 增量表 */
+/** 允许 invoke 的通道 = main/ipc.js 通道表 + v2 增量表 */
 const INVOKE_CHANNELS = [
   'config:get',
   'config:set',
@@ -76,7 +76,7 @@ const INVOKE_CHANNELS = [
   'dialog:pick-sample-folder',
 ];
 
-/** 允许订阅的事件（契约 §2 事件区 + v2 增量） */
+/** 允许订阅的事件 */
 const EVENT_CHANNELS = [
   'run:progress',
   'run:finished',

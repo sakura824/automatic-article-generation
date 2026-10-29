@@ -38,7 +38,7 @@
     "autoForceUpload": true,
     "similarityThreshold": 0.3,
     "verticalNotice": { "enabled": false, "text": "" },
-    "sensitiveKeywords": ["断食", "辟谷", "轻断食", "生酮", "减重药物", "降脂药物", "催吐", "绝食", "代餐替代"]
+    "sensitiveKeywords": []
   },
   "app": {
     "schedule": { "enabled": false, "time": "09:30", "mode": "auto" },

@@ -4,9 +4,9 @@
  * 数据源：config:get / config:set / wechat:test / llm:test / net:public-ip /
  *        schedule:set / dialog:pick-* / config:export / shell:open-external /
  *        v2：style:samples:list|add|import|delete、style:analyze、
- *            style:profile:get|set|toggle（文章样本库与文风画像，main/ipc.js v2 契约）
+ *            style:profile:get|set|toggle（文章样本库与文风画像，main/ipc.js v2 约定）
  *
- * 密钥语义（契约 §2）：config:get 返回脱敏值（仅末 4 位）；输入框带 data-masked
+ * 密钥语义：config:get 返回脱敏值（仅末 4 位）；输入框带 data-masked
  * 标记时表示「未修改、沿用已存密钥」，保存/测试时以 null 传给主进程（保留原值）。
  * v2 新增脱敏密钥：aggregate.searchApiKey（同语义）。
  * ============================================================ */
@@ -44,7 +44,7 @@
     return v ? v : null;
   }
 
-  /* ---------------- 禁用态与原因（PRD §7） ---------------- */
+  /* ---------------- 禁用态与原因 ---------------- */
   function updateTestWxGate() {
     const appid = $('#wxAppid').value.trim();
     const typed = $('#wxSecret').dataset.masked !== '1' && $('#wxSecret').value.trim().length > 0;
@@ -648,7 +648,7 @@
     });
     $('#sampleFolderBtn').addEventListener('click', async () => {
       try {
-        // ipc 契约：dialog:pick-sample-folder → {path}；style:samples:import {dirPath} 单层扫描 .txt/.md/.html
+        // ipc 约定：dialog:pick-sample-folder → {path}；style:samples:import {dirPath} 单层扫描 .txt/.md/.html
         const { path } = await App.api.invoke('dialog:pick-sample-folder', {});
         if (!path) return;
         const restore = App.setBusy($('#sampleFolderBtn'), App.BUSY_ICON + '导入中…');
@@ -721,7 +721,7 @@
     // 温度
     $('#tempRange').addEventListener('input', (e) => { $('#tempVal').textContent = e.target.value; });
 
-    // 选择器（契约：dialog:pick-repo / dialog:pick-cover → {path|null}，不是裸字符串）
+    // 选择器
     $('#browseRepo').addEventListener('click', async () => {
       try {
         const picked = await App.api.invoke('dialog:pick-repo');

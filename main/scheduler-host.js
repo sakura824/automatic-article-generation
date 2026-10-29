@@ -1,6 +1,6 @@
 'use strict';
 /**
- * 调度宿主 + 运行管理器（契约 §1 scheduler-host.js、§6 调度器纯函数、§7 决策 2/8）：
+ * 调度宿主 + 运行管理器：
  * - runManager：pipeline 的唯一触发口（run:generate / 托盘 / 定时 / 补跑 / 重新上传），
  *   E_BUSY 互斥，异步执行不阻塞 IPC，结果经 run:progress / run:finished 事件回传；
  * - schedulerHost：每 30s 一个 tick，把 now 显式传给 src/core/scheduler 的纯函数，
@@ -43,7 +43,7 @@ function createRunManager({ dataDir, store, logger, sendEvent, notify }) {
 
   /**
    * 启动一次运行。同步返回 {ok, runId} 或 {ok:false, error:E_BUSY}，
-   * 结果随后经 run:finished 事件推送（契约：run:generate 异步返回 {runId}）。
+   * 结果随后经 run:finished 事件推送。
    * opts: { upload, force, cause:'manual'|'scheduled'|'catchup'|'reupload', date? }
    */
   function start(opts) {
@@ -102,7 +102,7 @@ function createRunManager({ dataDir, store, logger, sendEvent, notify }) {
       logger.info(`运行结束：runId=${runId} status=${payload.status}${payload.error ? ' error=' + payload.error.message : ''}`);
       notifyResult(payload);
     } catch (e) {
-      // 模块缺失 / pipeline 未按契约抛错等情况：如实向界面报 failed，绝不静默
+      // 模块缺失 / pipeline 未按约定抛错等情况：如实向界面报 failed，绝不静默
       const message = e && e.message ? e.message : String(e);
       const code = (e && e.code) || 'E_IO';
       logger.error(`运行异常：runId=${runId} ${code} ${message}`);
@@ -526,7 +526,7 @@ function createRunManager({ dataDir, store, logger, sendEvent, notify }) {
 // ---------------------------------------------------------------- 调度宿主
 
 function createSchedulerHost({ dataDir, store, logger, runManager, tray, missingAutoConfig, missingPoolConfig }) {
-  const TICK_MS = 30 * 1000; // 契约 §6：每 30s tick
+  const TICK_MS = 30 * 1000; // 每 30s tick
   let timer = null;
   let schedulerMissingLogged = false;
   let trayMissingWarned = false;
@@ -585,7 +585,7 @@ function createSchedulerHost({ dataDir, store, logger, runManager, tray, missing
     }
   }
 
-  /** schedule:get / schedule:set 的返回数据（契约 §2） */
+  /** schedule:get / schedule:set 的返回数据 */
   function getScheduleInfo() {
     const cfg = store.loadFullConfig();
     const sched = loadScheduler();
@@ -613,7 +613,7 @@ function createSchedulerHost({ dataDir, store, logger, runManager, tray, missing
   }
 
   /**
-   * 触发一次定时类运行。防重语义（契约 §6）：触发开始时写 lastScheduledDate（无论成败）；
+   * 触发一次定时类运行。防重语义：触发开始时写 lastScheduledDate（无论成败）；
    * 手动 run 不改写它。若此刻已有任务在跑（E_BUSY），本次不写标记、30s 后的 tick 再试，
    * 避免出现“标了但没跑”的丢日。
    * 返回 true 表示已真正发起运行（调用方据此决定是否打「开始运行」日志）。
@@ -650,7 +650,7 @@ function createSchedulerHost({ dataDir, store, logger, runManager, tray, missing
 
     if (mode === 'pool') {
       // 内容池模式的门控：大模型 Key + 公众号凭证（要自动上传），**不要求仓库路径**
-      // ——PRD v2 §2 的「代码仓库只是素材来源之一」在这里同样成立。
+      // 「代码仓库只是素材来源之一」在这里同样成立。
       if (typeof missingPoolConfig === 'function') {
         try {
           const missing = missingPoolConfig(cfgAll);
@@ -787,7 +787,7 @@ function createSchedulerHost({ dataDir, store, logger, runManager, tray, missing
         const now = new Date();
         const state = store.loadState();
         if (isBoot) {
-          // 契约 §6：应用启动 ready 后判定补跑（当天已过点且当天未跑）
+          // 应用启动 ready 后判定补跑（当天已过点且当天未跑）
           const missed = sched.missedCatchUp(cfg.app.schedule.time, now, state.lastScheduledDate);
           if (missed && missed.catchUp) {
             logger.info(`检测到今天 ${cfg.app.schedule.time} 的定时任务未执行，自动补跑（cause=catchup）`);

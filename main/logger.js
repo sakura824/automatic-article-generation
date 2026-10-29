@@ -1,8 +1,8 @@
 'use strict';
 /**
- * 主进程日志（契约 §2 事件 log:append、§7 决策 3）：
+ * 主进程日志：
  * - 环形缓冲（界面 logs:list 数据源）+ 逐行落盘 DATA/logs/app-YYYYMMDD.log；
- * - registerSecret() 注册敏感值后，所有输出统一 scrub() 脱敏：只露末 4 位（PRD §7）；
+ * - registerSecret() 注册敏感值后，所有输出统一 scrub() 脱敏：只露末 4 位；
  * - 仅依赖 Node 内置模块，electron 交互通过注入的 sendEvent 完成，便于复用与检视。
  */
 const fs = require('fs');
@@ -84,7 +84,7 @@ function createLogger({ logsDir, sendEvent }) {
   }
 
   /**
-   * lv ∈ INFO/WARN/ERROR（契约 §2）；m 任意可字符串化内容，输出前统一脱敏。
+   * lv ∈ INFO/WARN/ERROR；m 任意可字符串化内容，输出前统一脱敏。
    * 同时：环形缓冲 → log:append 事件 → 文件追加。
    */
   function log(lv, m) {

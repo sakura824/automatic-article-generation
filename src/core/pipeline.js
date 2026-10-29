@@ -1,6 +1,6 @@
 'use strict';
 /**
- * pipeline.js —— 三阶段流水线（契约 §3 pipeline.js）。
+ * pipeline.js —— 三阶段流水线。
  * runPipeline({cfg, state, dataDir, upload, force, cause, logger, onProgress, deps})
  *   → {ok, date, status:'uploaded'|'generated'|'skipped'|'failed', title?, words?, draftMediaId?, error?}
  *
@@ -121,7 +121,7 @@ async function runPipeline({
     // ---------- 阶段 1：撰写 ----------
     const model = (cfg.llm && cfg.llm.model) || 'glm-4.6';
     onProgress(1, 'active', `调用 ${model} 撰写文章…`);
-    // 与 v2 三条路径同口径：仓库自动也注入项目背景与文风画像（PRD v2 §3/§4.3）
+    // 与 v2 三条路径同口径：仓库自动也注入项目背景与文风画像
     const prompt = buildPrompt(collected.digest, cfg, day, {
       projectBlock: buildProjectBlock(projectContext(cfg)),
       styleInjection: styleInjectionFor(cfg, dataDir, collected.digest),

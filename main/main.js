@@ -1,6 +1,6 @@
 'use strict';
 /**
- * 主进程入口（契约 §1 main.js）：窗口 1360×880 frameless、单实例锁、生命周期、
+ * 主进程入口：窗口 1360×880 frameless、单实例锁、生命周期、
  * 开机自启（app.setLoginItemSettings + --hidden）、系统通知。
  * 接线：store(持久化) / logger(日志) / tray(托盘) / runManager+schedulerHost(调度)
  *       / registerIpcHandlers(IPC 唯一接线处)。
@@ -14,7 +14,7 @@ const { createTray } = require('./tray');
 const { createRunManager, createSchedulerHost } = require('./scheduler-host');
 const { registerIpcHandlers, missingRunConfig, missingAutoConfig } = require('./ipc');
 
-const WINDOW_WIDTH = 1360;   // 契约：窗口 1360×880
+const WINDOW_WIDTH = 1360;   // 约定：窗口 1360×880
 const WINDOW_HEIGHT = 880;
 
 // 测试钩子（仅冒烟测试显式设置时生效）：把 userData 指到独立目录，
@@ -83,7 +83,7 @@ if (!app.requestSingleInstanceLock()) {
       backgroundColor: '#f6f7f9',
       webPreferences: {
         preload: path.join(__dirname, '..', 'preload', 'preload.js'),
-        contextIsolation: true,   // 契约：渲染层只经 preload 白名单 window.api 通信
+        contextIsolation: true,   // 约定：渲染层只经 preload 白名单 window.api 通信
         nodeIntegration: false,
         spellcheck: false,
       },
@@ -124,7 +124,7 @@ if (!app.requestSingleInstanceLock()) {
     });
   }
 
-  /** 开机自启（契约 §7 决策 8）：配置驱动，启动与每次 config:set 后调用 */
+  /** 开机自启：配置驱动，启动与每次 config:set 后调用 */
   function applyAutoLaunch() {
     try {
       const cfg = store.loadFullConfig();
@@ -157,7 +157,7 @@ if (!app.requestSingleInstanceLock()) {
     runManager = createRunManager({ dataDir, store, logger, sendEvent, notify });
 
     // 托盘先建再注入 schedulerHost：schedulerHost.refreshTray 依赖 tray.setTooltip，
-    // 漏传 tray 会让「下次：明天 09:30 / 定时已暂停」的 tooltip 永不更新（契约 §2 schedule:set）。
+    // 漏传 tray 会让「下次：明天 09:30 / 定时已暂停」的 tooltip 永不更新。
     tray = createTray({
       logger,
       actions: {

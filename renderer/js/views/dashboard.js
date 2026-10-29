@@ -71,7 +71,7 @@
       genOnly.title = canAuto ? '' : '仅生成预览也属于仓库自动模式，需要先配置代码仓库路径';
     }
 
-    // 禁用原因必须在页面上可见（PRD §7）：未配仓库时「仅生成预览」不可用，给一行说明
+    // 禁用原因必须在页面上可见：未配仓库时「仅生成预览」不可用，给一行说明
     const note = $('#genOnlyNote');
     if (note) {
       const showNote = wizardDone && !canAuto;
@@ -224,7 +224,7 @@
     $('#dashSub').textContent = sub;
   }
 
-  /* ---------------- 定时卡（PRD v2 §6：定时任务卡仅在自动模式开启时显示） ---------------- */
+  /* ---------------- 定时卡 ---------------- */
   function renderSchedule(schedule) {
     view.schedule = schedule || view.schedule;
     App.updateTrayPill(view.schedule);
@@ -379,7 +379,7 @@
     } else {
       view.lastFail = true;
       const err = res.error || {};
-      // 失败：保留失败阶段标记（run:progress 已置 fail），PRD F3 要求 Toast 提供「查看日志」跳转
+      // 失败：保留失败阶段标记（run:progress 已置 fail）， 要求 Toast 提供「查看日志」跳转
       App.toast(err.message || '生成失败', 'err', { label: '查看日志', onClick: () => App.showView('logs') });
     }
     refresh();
@@ -478,7 +478,7 @@
     });
 
     App.bindSwitch($('#schedSwitch'), (on) => {
-      // 只有仓库自动模式才强制要求仓库路径；内容池模式不需要（PRD v2 §2）
+      // 只有仓库自动模式才强制要求仓库路径；内容池模式不需要
       const mode = (view.schedule && view.schedule.mode) || 'auto';
       if (on && mode === 'auto' && App.autoConfigMissing()) {
         App.setSwitch($('#schedSwitch'), false); // 回滚

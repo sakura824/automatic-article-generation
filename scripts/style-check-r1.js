@@ -213,9 +213,9 @@ const ICON_FN = () => {
 
     /* ============ C. 空态七视图 + 设置页签 ============ */
     await step('仪表盘空态截图', async () => { await shot(win, '10-dashboard-empty.png'); });
-    await step('仪表盘 schedCard 应隐藏（schedule.enabled=false，PRD v2 §6）', async () => {
+    await step('仪表盘 schedCard 应隐藏（schedule.enabled=false）', async () => {
       const disp = await win.evaluate(() => getComputedStyle(document.querySelector('#schedCard')).display);
-      if (disp !== 'none') findings.push({ tag: 'schedCard', detail: `schedule.enabled=false 时 #schedCard display=${disp}（PRD v2 §6 要求定时任务卡仅在自动模式开启时显示）` });
+      if (disp !== 'none') findings.push({ tag: 'schedCard', detail: `schedule.enabled=false 时 #schedCard display=${disp}（定时任务卡应仅在自动模式开启时显示）` });
     });
     for (const [nav, sel, file] of [
       ['compose', '.view[data-view="compose"].on', '12-compose-empty.png'],

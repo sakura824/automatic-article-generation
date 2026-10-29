@@ -1,6 +1,6 @@
 'use strict';
 /**
- * chat.js —— 对话共创会话模块（PRD v2 §2 模式 B / §7 会话通道）。
+ * chat.js —— 对话共创会话模块。
  *
  * 职责：
  * - 会话对象与多轮消息（newSession/addMessage），本地持久化（persist.js，dataDir/sessions/<id>.json）；
@@ -8,7 +8,7 @@
  * - 会话回复（chatReply）：多消息 LLM 调用（llm.callLlmMessages，mockKind='chat'）；
  * - 「整理成文章」指令（isComposeCommand / composeFromSession）：把整轮讨论整理为
  *   ===TITLE===/===DIGEST===/===BODY_HTML=== 格式的文章；
- * - 创作页「素材成文」（buildMaterialPrompt / composeMaterial，PRD v2 §2 模式 A）。
+ * - 创作页「素材成文」（buildMaterialPrompt / composeMaterial， 模式 A）。
  *
  * 依赖注入：LLM 调用统一走 llm.callLlmMessages（fetch/超时可经 deps 注入，测试零真实网络；
  * mock 模式由 llm.js 入口按 mockKind 短路到 mock.js 确定性桩）。仅 Node 内置模块。
@@ -22,7 +22,7 @@ const configCore = require('./config');
 const DEFAULT_MAX_TURNS = 20;
 /** 整理成文/素材成文时，单条历史消息在提示词中的截断长度。 */
 const MAX_TRANSCRIPT_MSG_CHARS = 2000;
-/** 「整理成文章」触发词（PRD v2 §2 模式 B：把讨论整理成文章）。 */
+/** 「整理成文章」触发词。 */
 const COMPOSE_COMMAND_RE = /整理成\s*一?\s*篇?\s*文章|生成文章|整理成文/;
 
 function inputError(message) {
@@ -284,7 +284,7 @@ async function composeFromSession(cfg, session, { deps = {}, project, styleInjec
 }
 
 /**
- * 创作页「素材成文」提示词（PRD v2 §2 模式 A：素材 + 一句「想强调的点」）。
+ * 创作页「素材成文」提示词。
  */
 function buildMaterialPrompt({ material, emphasis, project, styleInjection } = {}) {
   const mat = clipMsg(material);

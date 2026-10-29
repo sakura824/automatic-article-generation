@@ -1,6 +1,6 @@
 'use strict';
 /**
- * state.js —— 状态 JSON 读写（契约 §3）。
+ * state.js —— 状态 JSON 读写。
  * state 形状：{lastHead, lastRunDate, lastScheduledDate, cover:{sha256,mediaId},
  *              history:[{date,title,status,words,draftMediaId?,error?}]}
  * status 枚举同设计稿：'uploaded' | 'generated' | 'skipped' | 'failed'。
@@ -14,7 +14,7 @@ const path = require('node:path');
  * removed   = 已删除（状态同步：草稿箱无此稿且未发表，用户在公众号里删了）；
  * replaced  = 已打回（用户对该稿点了「打回重写」，新稿已生成/上传，旧稿不再追踪）。 */
 const STATUS_VALUES = ['uploaded', 'generated', 'skipped', 'failed', 'published', 'removed', 'replaced'];
-/** v2 历史来源枚举（PRD v2 §2：素材/对话/自动/聚合）。
+/** v2 历史来源枚举。
  * 「内容池」为 v2.2 增量：定时任务从内容池取题自动成文，与手动「素材成文」区分开，
  * 否则历史里分不清哪条是挂机写的、哪条是自己点的。 */
 const ORIGIN_VALUES = ['素材', '对话', '自动', '聚合', '内容池'];
@@ -151,7 +151,7 @@ function saveStateMerged(dir, state) {
 
 /**
  * 按 date upsert 单条历史记录（v1：单日单条）。
- * v2 增量（PRD v2 §2 历史来源标注）：
+ * v2 增量：
  * - run.origin ∈ ORIGIN_VALUES（素材/对话/自动/聚合）写入 entry.origin；未提供 → '自动'（v1 仓库自动）；
  * - run.id（如聚合批次 id）提供时按 id upsert，同一天可并存多条不同 id 的记录
  *   （聚合/素材/对话模式一天可能成文多篇）；无 id 的调用保持 v1「单日单条」语义，

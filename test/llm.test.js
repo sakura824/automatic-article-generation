@@ -41,7 +41,7 @@ test('buildPrompt：约定格式、读者画像、风格补充、日期', () => 
   }
   // audience 缺省值
   const p2 = buildPrompt('d', { content: {} }, '2026-10-29');
-  assert.ok(p2.includes('读者：关注内容的读者')); // 未填读者画像时的通用兜底（PRD v2 §3）
+  assert.ok(p2.includes('读者：关注内容的读者')); // 未填读者画像时的通用兜底
 });
 
 test('parseLlmOutput 正常解析：title/digest/html', () => {

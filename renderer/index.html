@@ -92,7 +92,7 @@
           </div>
         </div>
 
-        <!-- 四模式快捷入口（PRD v2 §6：素材成文 / 对话共创 / 全网聚合 / 仓库自动） -->
+        <!-- 四模式快捷入口 -->
         <div class="mode-grid">
           <button class="card mode-card" data-goto="compose">
             <span class="mi mi-brand"><i class="fa-solid fa-pen-nib"></i></span>
@@ -447,7 +447,7 @@
               <div class="field">
                 <label>AppSecret</label>
                 <div class="input-wrap">
-                  <input class="input has-eye" id="wxSecret" type="password" value="••••••••••••••••••••d41f" placeholder="重置后只显示一次，请妥善保存">
+                  <input class="input has-eye" id="wxSecret" type="password" value="••••••••••••••••••••" placeholder="重置后只显示一次，请妥善保存">
                   <button class="input-eye" data-eye="wxSecret" title="显示/隐藏"><i class="fa-regular fa-eye"></i></button>
                 </div>
                 <div class="hint">存储时自动加密（Windows DPAPI）。</div>
@@ -489,7 +489,7 @@
               <div class="field">
                 <label>API Key</label>
                 <div class="input-wrap">
-                  <input class="input has-eye" id="llmKey" type="password" value="••••••••••••••••••9c2e" placeholder="在服务商开放平台申请">
+                  <input class="input has-eye" id="llmKey" type="password" value="••••••••••••••••••••" placeholder="在服务商开放平台申请">
                   <button class="input-eye" data-eye="llmKey" title="显示/隐藏"><i class="fa-regular fa-eye"></i></button>
                 </div>
               </div>
@@ -568,7 +568,7 @@
               <textarea class="input" id="styleExtraInput" placeholder="例如：多讲为什么，少贴代码；结尾可以带一点工程文化思考">像工程师写给同事看：讲清动机和取舍，不堆砌文件清单；标题不标题党。</textarea>
             </div>
 
-            <!-- 文章样本库（PRD v2 §4：导入样文 / 一键分析文风画像 / 编辑 / 启用） -->
+            <!-- 文章样本库 -->
             <div class="sub-card" id="samplesCard">
               <div class="sub-card-head">
                 <div>
@@ -629,7 +629,7 @@
           </div>
         </div>
 
-        <!-- 页签：项目背景（PRD v2 §3：所有创作模式共用） -->
+        <!-- 页签：项目背景 -->
         <div class="panel" data-panel="project">
           <div class="card card-pad" style="max-width:760px;">
             <div class="field">
@@ -649,7 +649,7 @@
           </div>
         </div>
 
-        <!-- 页签：聚合来源（PRD v2 §5/§6：关键词、白名单、搜索 API Key、每日数量） -->
+        <!-- 页签：聚合来源 -->
         <div class="panel" data-panel="aggregate">
           <div class="card card-pad" style="max-width:760px;">
             <div class="field">
@@ -729,6 +729,7 @@
                     <button class="switch" id="aggSkipSensitive" role="switch" aria-checked="true" aria-label="自动跳过敏感话题"></button>
                     <span style="font-size:12.5px;color:var(--text-3);">自动跳过，留给人工处理</span>
                   </div>
+                  <div class="hint">默认不内置敏感词，请在配置文件的 <code>aggregate.sensitiveKeywords</code> 里按你的领域自行配置（如网络博彩、刷单返利等违规题材）。</div>
                 </div>
               </div>
               <div class="field" style="margin-top:12px;margin-bottom:0;">

@@ -1,5 +1,5 @@
 /* ============================================================
- * history.js —— 历史记录：状态筛选 + 来源筛选（PRD v2 §2/§6）、表格、
+ * history.js —— 历史记录：状态筛选 + 来源筛选、表格、
  *               文章预览弹窗、重新上传
  * 数据源：history:list / history:preview / history:reupload / shell:open-path
  * 来源枚举（App.SOURCE）：material 素材 / chat 对话 / auto 自动 / aggregate 聚合；
@@ -325,7 +325,7 @@
       view.filter = c.dataset.f;
       render();
     }));
-    // 来源筛选（PRD v2 §6：统一收四种来源，加来源列与筛选）
+    // 来源筛选
     $$('#histSrcFilter .fchip').forEach((c) => c.addEventListener('click', () => {
       $$('#histSrcFilter .fchip').forEach((x) => x.classList.remove('on'));
       c.classList.add('on');
@@ -366,7 +366,7 @@
     });
 
     App.api.on('run:finished', (res) => {
-      // 成功/失败/重传都会写入历史（契约 §3 pipeline），统一刷新并解锁重传按钮
+      // 成功/失败/重传都会写入历史，统一刷新并解锁重传按钮
       reupBusy.clear();
       if (res) refresh();
     });

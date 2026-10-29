@@ -79,7 +79,7 @@ function record(name, ok, detail = '') {
   const modeSaved = await win.evaluate(() => (window.App && App.state.schedule && App.state.schedule.mode) || '');
   record('应用页切类型后生效（radar）', modeSaved === 'radar', modeSaved);
 
-  // 开启每日定时（仪表盘那张卡片在定时关闭时按 PRD 隐藏，所以从这里开）
+  // 开启每日定时（仪表盘那张卡片在定时关闭时本就隐藏，所以从这里开）
   await win.click('#appScheduleSwitch');
   await win.waitForTimeout(1300);
   const enabledNow = await win.evaluate(() => !!(window.App && App.state.schedule && App.state.schedule.enabled));

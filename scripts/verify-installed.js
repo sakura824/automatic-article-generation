@@ -97,11 +97,14 @@ const EXE = process.env.OSS_VERIFY_EXE || path.join(__dirname, '..', 'dist', 'wi
   });
   console.log('[diag] compose:generate →', JSON.stringify({ ...illus, html: undefined }));
 
-  const ok = /v2\.3/.test(ver) && tabResults.every((r) => r.ok) && wired.settingsView && errs.length === 0
+  // 版本判据从 package.json 读取，避免脚本里写死版本号（随仓版本升级时脚本不用再改）
+  const expectedVer = 'v' + require(path.join(__dirname, '..', 'package.json')).version;
+  const ok = ver.trim().startsWith(expectedVer) && tabResults.every((r) => r.ok) && wired.settingsView && errs.length === 0
     && hasDeepseek.length === 5 && mismatchWarned && matchOk
     && illus.ok && illus.hasImg && !illus.leftover;
   console.log(JSON.stringify({
     version: ver.trim(),
+    expectedVersion: expectedVer,
     tabsOk: tabResults.every((r) => r.ok),
     wired,
     searchProviders: hasDeepseek,

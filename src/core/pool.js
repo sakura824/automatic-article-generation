@@ -14,7 +14,7 @@
  * - 单文件存储 DATA/content-pool.json（条目量小、顺序重要，单文件比一文件一条更好维护），
  *   原子写沿用 persist.writeJson（tmp + rename，断电可恢复）。
  *
- * 仅 Node 内置模块，禁止 import electron（契约：src/core 可被 node --test 直测）。
+ * 仅 Node 内置模块，禁止 import electron。
  */
 const path = require('node:path');
 const { readJson, writeJson } = require('./persist');

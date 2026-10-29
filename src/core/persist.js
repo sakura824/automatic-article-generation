@@ -1,11 +1,11 @@
 'use strict';
 /**
- * persist.js —— v2 增量数据目录的通用 JSON 存取（PRD v2 §7 技术增量）。
+ * persist.js —— v2 增量数据目录的通用 JSON 存取。
  * 供 chat（会话）/ style（样文）/ aggregate（雷达清单）等模块共用：
  * - 每条数据一个 .json 文件，文件名即 id（无自增主键，便于单条删除/改写）；
  * - 原子写：写临时文件后 rename（与 state.js 同一约定，断电可恢复）；
  * - 读取：不存在 → null（调用方决定默认值）；损坏 → E_IO（不静默重置，避免悄悄丢数据）。
- * 仅 Node 内置模块，禁止 import electron（契约：src/core 可被 node --test 直测）。
+ * 仅 Node 内置模块，禁止 import electron。
  */
 const fs = require('node:fs');
 const path = require('node:path');

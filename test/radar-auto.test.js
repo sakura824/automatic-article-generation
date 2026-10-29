@@ -46,26 +46,26 @@ test('pickTopTopics：count 缺省为 1，超过 3 收敛为 3', () => {
 
 test('pickTopTopics：跳过敏感话题且不占用名额', () => {
   const topics = [
-    t('s1', '轻断食 7 天瘦 10 斤靠谱吗'),
-    t('s2', '生酮饮食入门'),
+    t('s1', '刷单兼职日结三百靠谱吗'),
+    t('s2', '网络博彩平台推荐'),
     t('ok', '任务拆解的新手计划'),
     t('next', '每天走一万步有用吗'),
   ];
-  const r = radarAuto.pickTopTopics(topics, { count: 1 });
+  const r = radarAuto.pickTopTopics(topics, { count: 1, keywords: ['刷单', '博彩'] });
   assert.deepStrictEqual(r.picked.map((x) => x.id), ['ok']);
   assert.deepStrictEqual(r.skipped.map((x) => x.id), ['s1', 's2']);
   assert.match(r.skipped[0].reason, /敏感/);
 });
 
 test('pickTopTopics：摘要里命中敏感词也算（标题干净也不行）', () => {
-  const topics = [{ id: 'x', title: '一周见效计划', summary: '配合减重药物使用效果更佳' }];
-  const r = radarAuto.pickTopTopics(topics, { count: 1 });
+  const topics = [{ id: 'x', title: '一周见效计划', summary: '配合刷单服务使用效果更佳' }];
+  const r = radarAuto.pickTopTopics(topics, { count: 1, keywords: ['刷单', '博彩'] });
   assert.deepStrictEqual(r.picked, []);
   assert.strictEqual(r.skipped.length, 1);
 });
 
 test('pickTopTopics：关闭跳过后，敏感选题照常入选', () => {
-  const topics = [t('s1', '轻断食靠谱吗'), t('ok', '任务拆解入门')];
+  const topics = [t('s1', '博彩平台测评'), t('ok', '任务拆解入门')];
   const r = radarAuto.pickTopTopics(topics, { count: 2, skipSensitive: false });
   assert.deepStrictEqual(r.picked.map((x) => x.id), ['s1', 'ok']);
   assert.deepStrictEqual(r.skipped, []);
@@ -80,8 +80,8 @@ test('pickTopTopics：空清单 / 非数组 / 脏元素 → 安全返回空结�
 });
 
 test('pickTopTopics：全部是敏感话题时返回空 picked（调用方据此跳过今天）', () => {
-  const topics = [t('s1', '催吐行为的危害'), t('s2', '绝食一周记录')];
-  const r = radarAuto.pickTopTopics(topics, { count: 1 });
+  const topics = [t('s1', '刷单返利的套路'), t('s2', '博彩群的骗局')];
+  const r = radarAuto.pickTopTopics(topics, { count: 1, keywords: ['刷单', '博彩'] });
   assert.deepStrictEqual(r.picked, []);
   assert.strictEqual(r.skipped.length, 2);
 });

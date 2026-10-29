@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * app:mock 入口（契约 §1 A / §5）：
+ * app:mock 入口：
  * 设 WECHAT_DAILY_MOCK=1 后再拉起 electron，兼容 cmd / Git Bash / PowerShell
  * （不在 npm script 里写 `cross-env` 式内联环境变量，避免跨 shell 差异）。
  * 额外参数原样透传给 electron，例如：npm run app:mock -- --hidden

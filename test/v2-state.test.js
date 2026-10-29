@@ -1,9 +1,9 @@
 'use strict';
 /**
- * v2-state.test.js —— v2 增量的数据模型测试（PRD v2 §2 历史来源标注）：
+ * v2-state.test.js —— v2 增量的数据模型测试：
  * recordRun 的 origin/id 语义（带 id 同日多条；无 id 保持 v1 单日单条）、
  * getHistory 的来源筛选（旧数据按「自动」归类）、aggregateConfigOf 默认值兜底、
- * config 契约点（SEARCH_PROVIDERS / DEFAULT_SENSITIVE_KEYWORDS / verticalNotice）。
+ * config 约定点（SEARCH_PROVIDERS / DEFAULT_SENSITIVE_KEYWORDS / verticalNotice）。
  */
 delete process.env.WECHAT_DAILY_MOCK;
 
@@ -86,11 +86,12 @@ test('aggregateConfigOf：缺省/畸形配置兜底为安全默认值', () => {
   });
 });
 
-test('config 契约点：SEARCH_PROVIDERS 与适配层一致；敏感词默认预设与领域提示默认关闭', () => {
+test('config 约定点：SEARCH_PROVIDERS 与适配层一致；敏感词默认留空与领域提示默认关闭', () => {
   // v2.2：native 通道 deepseek / bigmodel（可复用大模型 Key）+ 独立服务 bocha / tavily / serpapi
   assert.deepStrictEqual(config.SEARCH_PROVIDERS, ['bocha', 'deepseek', 'bigmodel', 'tavily', 'serpapi']);
   for (const p of config.SEARCH_PROVIDERS) assert.ok(aggregate.ADAPTERS[p], `适配层应支持 ${p}`);
-  assert.deepStrictEqual(config.DEFAULT_SENSITIVE_KEYWORDS, ['断食', '辟谷', '轻断食', '生酮', '减重药物', '降脂药物', '催吐', '绝食', '代餐替代']);
+  // 敏感词默认留空：不内置任何领域词表，由用户按领域自行配置
+  assert.deepStrictEqual(config.DEFAULT_SENSITIVE_KEYWORDS, []);
   // 默认配置含 v2 增量块（渲染层设置页的落点）
   const c = config.defaultConfig();
   assert.deepStrictEqual(c.aggregate, {

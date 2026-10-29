@@ -3,7 +3,7 @@
  * illustration.js（main）—— 把 core 生成的插图 HTML 离屏渲染成 PNG。
  *
  * 为什么必须在主进程：截图依赖 Electron 的 BrowserWindow / capturePage，
- * 而 src/core 按契约禁止 import electron（要能被 node --test 直测）。
+ * 而 src/core 按约定禁止 import electron（要能被 node --test 直测）。
  *
  * 实现要点（都是踩坑换来的）：
  * - offscreen:true + show:false：不弹窗、不抢焦点；

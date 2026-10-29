@@ -3,7 +3,7 @@
  * wechat.js —— 微信公众号接口（移植 run_daily.py:125-210、541-564）。
  * 覆盖：access_token 获取、永久素材 multipart 上传、uploadimg、draft/add、draft/delete，
  * 错误码（40164/40001/40013/48001/45009/40007/41001）映射为中文处理建议。
- * 契约 §4：所有网络函数入口先判 isMock()，命中则委托 mock.js 的确定性桩；
+ * 所有网络函数入口先判 isMock()，命中则委托 mock.js 的确定性桩；
  * fetch 可注入（deps.fetch），测试零真实网络。multipart 边界构造照搬命令行版。
  */
 const crypto = require('node:crypto');
@@ -12,7 +12,7 @@ const path = require('node:path');
 const { isMock, mockAccessToken, mockCoverMediaId, nextMockDraftId, nextMockImageUrl } = require('./mock');
 
 const WECHAT_API = 'https://api.weixin.qq.com';
-/** 网络类错误总尝试次数 = 首次 + 重试 2 次（PRD §8）。 */
+/** 网络类错误总尝试次数 = 首次 + 重试 2 次。 */
 const RETRY_ATTEMPTS = 3;
 const TOKEN_TIMEOUT_MS = 60 * 1000;
 const UPLOAD_TIMEOUT_MS = 120 * 1000;
@@ -191,7 +191,7 @@ async function getAccessToken(cfg, deps = {}) {
 
 /**
  * wechat:test 通道的连接测试 → {expiresIn}。
- * 先校验非空（mock 下空值仍报 E_INVALID_INPUT，与契约一致），mock 命中即成功。
+ * 先校验非空（mock 下空值仍报 E_INVALID_INPUT，与约定一致），mock 命中即成功。
  */
 async function testConnection(credentials, deps = {}) {
   const appId = String((credentials && credentials.appId) || '').trim();

@@ -6,6 +6,9 @@
   "main": "main/main.js",
   "license": "MIT",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "app": "electron .",
     "app:mock": "node scripts/app-mock.js",

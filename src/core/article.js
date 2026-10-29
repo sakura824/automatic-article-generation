@@ -183,7 +183,7 @@ function buildPreviewHtml(article) {
 }
 
 /**
- * 展示口径字数（契约 §7 决策 7：非严格字数）：
+ * 展示口径字数：
  * 去标签 → CJK 字符数 + 英文单词数（数字串不计）。
  */
 function countWords(html) {

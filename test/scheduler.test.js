@@ -1,6 +1,6 @@
 'use strict';
 /**
- * scheduler.test.js —— 调度器纯函数边界（契约 §6 必测用例）：
+ * scheduler.test.js —— 调度器纯函数边界：
  * nextRunAt 跨日边界、parseTime 非法输入全表、shouldFireNow 同日防重、
  * missedCatchUp 昨天/未过点、时钟回拨、跨月。时区全部用本地时间断言。
  */

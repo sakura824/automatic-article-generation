@@ -1,6 +1,6 @@
 'use strict';
 /**
- * v2-articles.test.js —— main/articles.js 的相似度改写关卡（PRD v2 §5.1/§5.4 联调验收点）：
+ * v2-articles.test.js —— main/articles.js 的相似度改写关卡：
  * - 聚合成文 similarity.needsRewrite=true → compose:upload 被阻止（E_REWRITE_REQUIRED）；
  * - compose:save 人工编辑正文 → similarity.manualEditAt 记录 → 上传放行；
  * - 素材/对话成文（无 similarity.json）上传不受关卡影响。

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * check-channels.js —— IPC 通道一致性核对（契约 §2，联调用）。
+ * check-channels.js —— IPC 通道一致性核对。
  * 静态解析三处通道清单并交叉比对：
  *   1. preload/preload.js   INVOKE_CHANNELS / EVENT_CHANNELS（白名单）
  *   2. main/ipc.js          handlers 对象注册的通道（ipcMain.handle 唯一接线处）

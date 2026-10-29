@@ -1,6 +1,6 @@
 'use strict';
 /**
- * scheduler.js —— 调度器纯函数（契约 §6，独立单测，不依赖 electron）。
+ * scheduler.js —— 调度器纯函数。
  * 纯函数只吃参数不吃时钟：now 一律显式传入，时间均为本地时区。
  * 防重语义：lastScheduledDate 只在 scheduled/catchup 触发开始时写入（无论成败），
  * 因此 30s tick 下到点后 shouldFireNow 恒真由 lastScheduledDate 防重；

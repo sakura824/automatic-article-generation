@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * smoke-electron.js —— Playwright _electron 冒烟测试（契约 §4，WECHAT_DAILY_MOCK=1）。
+ * smoke-electron.js —— Playwright _electron 冒烟测试。
  *
  * 覆盖（v2 联调 ask 第 3 项）：
  *   1. 应用能启动、主窗口出现、无 pageerror / console error；
- *   2. 首次启动自动进入配置向导（PRD F1），可关闭；
+ *   2. 首次启动自动进入配置向导，可关闭；
  *   3. 七个视图（仪表盘/素材成文/对话共创/选题雷达/历史/日志/设置）切换无报错并截图；
  *   4. v1 mock 全链路：注入 mock 配置（临时 git 仓库）→ 「立即生成并上传」→ uploaded；
  *   5. v2 三条新流程（mock）：
@@ -88,7 +88,7 @@ function makeGitRepo(dir) {
     args: ['.'],
     cwd: ROOT,
     env: Object.assign({}, process.env, {
-      WECHAT_DAILY_MOCK: '1',        // 契约 §4：微信/LLM/搜索走确定性桩
+      WECHAT_DAILY_MOCK: '1',        // 微信/LLM/搜索走确定性桩
       WECHAT_DAILY_USERDATA: userData, // main.js 测试钩子：独立 userData，从干净配置起步
     }),
   });
@@ -113,7 +113,7 @@ function makeGitRepo(dir) {
     // 2. 首启向导（wizardDone=false 自动打开）
     await win.waitForSelector('#wizard.on', { timeout: 10000 });
     await shot(win, '00-wizard-firstboot.png');
-    record('首次启动自动进入配置向导（PRD F1）', true);
+    record('首次启动自动进入配置向导', true);
     await win.click('#wizClose');
     await win.waitForSelector('#wizard.on', { state: 'detached', timeout: 5000 });
     record('向导可关闭并回到仪表盘', true);

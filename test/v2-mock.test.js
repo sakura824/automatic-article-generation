@@ -1,7 +1,6 @@
 'use strict';
 /**
- * v2-mock.test.js —— WECHAT_DAILY_MOCK=1 下的 v2 确定性桩与端到端链路（PRD v2 §8：
- * 对话与素材两条新流程全程用 mock 模式验证；聚合链路同理）。
+ * v2-mock.test.js —— WECHAT_DAILY_MOCK=1 下的 v2 确定性桩与端到端链路。
  * 断言：所有网络函数短路到 mock.js 桩（注入的 fetch 一旦被调用立即失败）、输出确定性可断言。
  * 本文件在顶部打开 mock 开关（node --test 每个文件独立进程，互不影响）。
  */
@@ -51,11 +50,11 @@ test('对话共创（mock 端到端）：多轮回复 → 整理成文章，全�
 });
 
 test('素材成文（mock 端到端）：素材 + 想强调的点 → 成文，零网络且标题内嵌强调点', async () => {
-  const m1 = await chat.composeMaterial(CFG, { material: '深蹲三个要点：髋、膝、踝对齐；呼吸节奏；负重渐进。', emphasis: '循序渐进不受伤', deps: DEPS });
-  const m2 = await chat.composeMaterial(CFG, { material: '深蹲三个要点：髋、膝、踝对齐；呼吸节奏；负重渐进。', emphasis: '循序渐进不受伤', deps: DEPS });
+  const m1 = await chat.composeMaterial(CFG, { material: '任务拆解三个要点：先拆目标、再排顺序、每日只挑三件事。', emphasis: '循序渐进养习惯', deps: DEPS });
+  const m2 = await chat.composeMaterial(CFG, { material: '任务拆解三个要点：先拆目标、再排顺序、每日只挑三件事。', emphasis: '循序渐进养习惯', deps: DEPS });
   assert.strictEqual(fetchCalled, 0);
   assert.strictEqual(m1.raw, m2.raw);
-  assert.ok(m1.article.title.includes('循序渐进不受伤'));
+  assert.ok(m1.article.title.includes('循序渐进养习惯'));
   // 空素材 → E_INVALID_INPUT（mock 下仍保持禁用态逻辑可测）
   await assert.rejects(() => chat.composeMaterial(CFG, { material: '  ', deps: DEPS }), (e) => e.code === 'E_INVALID_INPUT');
 });
@@ -63,7 +62,7 @@ test('素材成文（mock 端到端）：素材 + 想强调的点 → 成文，�
 test('文风画像（mock 端到端）：分析 → 画像 → few-shot → 注入块，输出确定性', async () => {
   const samples = [];
   style.addSample(samples, { name: '样文A', text: '第一段抛场景。第二段给数据！结尾提问？', now: '2026-10-28T00:00:00Z' });
-  style.addSample(samples, { name: '样文B', text: '另一个样文内容，讨论训练安排与恢复。', now: '2026-10-28T01:00:00Z' });
+  style.addSample(samples, { name: '样文B', text: '另一个样文内容，讨论日程安排与复盘。', now: '2026-10-28T01:00:00Z' });
   const r1 = await style.analyzeStyle(CFG, samples, { deps: DEPS, now: '2026-10-29T00:00:00Z' });
   const r2 = await style.analyzeStyle(CFG, samples, { deps: DEPS, now: '2026-10-29T00:00:00Z' });
   assert.strictEqual(fetchCalled, 0);
@@ -71,7 +70,7 @@ test('文风画像（mock 端到端）：分析 → 画像 → few-shot → 注�
   assert.strictEqual(r1.profile.sampleCount, 2);
   assert.ok(r1.profile.qualitative.opening.includes('2 篇样文'));
   assert.ok(r1.profile.bannedWords.includes('深入探讨')); // mock LLM 增补并集
-  const few = style.pickFewShots(samples, '训练安排与恢复', { count: 2 });
+  const few = style.pickFewShots(samples, '日程安排与复盘', { count: 2 });
   assert.strictEqual(few[0].name, '样文B');
   const inj = style.buildStyleInjection(r1.profile, few);
   assert.ok(inj.includes('【文风画像】') && inj.includes('【范文参考】') && inj.includes('【AI 味禁用词'));

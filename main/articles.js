@@ -8,7 +8,7 @@
  * - 落盘 output/<date>/compose/<articleId>/：article.json + preview.html；
  * - 历史：经 src/core/state.recordRun（v2 已支持 id/origin）入列，origin ∈ '素材'|'对话'；
  * - 上传：复用 wechat.js（token → 封面 → payload → draft），compose:upload 调 uploadById。
- * 合规（PRD v2 §5.2）：素材来源清单只落 sources.json / similarity.json 供内部查看，
+ * 合规：素材来源清单只落 sources.json / similarity.json 供内部查看，
  * 一律不进入 article.html，不随文发布。
  */
 const fs = require('node:fs');
@@ -162,7 +162,7 @@ function loadComposedArticle(state, id) {
  * （人工改写本身就是关卡要求的动作；报告与 maxRatio 原样保留作审计）。
  * 注意：渲染层「上传到草稿箱」会先无条件保存一次当前正文（compose.js upload → saveEdits），
  * 因此不能「收到 html 字段」就记 manualEditAt——必须与磁盘上已保存的正文实际不同才算人工改写，
- * 否则一字未改也能解锁关卡（PRD v2 §5.1 关卡形同虚设）。
+ * 否则一字未改也能解锁关卡。
  * 返回 {article, words}；历史条目同步 title/words。
  */
 function saveComposedPatch({ dataDir, state, id, patch = {}, now, logger } = {}) {
@@ -198,7 +198,7 @@ function saveComposedPatch({ dataDir, state, id, patch = {}, now, logger } = {})
 }
 
 /**
- * 相似度人工改写关卡（PRD v2 §5.1，PRD v2 §5.4 人工审阅关卡的主进程消费点）：
+ * 相似度人工改写关卡：
  * 聚合成文 similarity.json.needsRewrite=true（自动重写后仍超阈值）时阻止 compose:upload，
  * 直到用户在编辑器修改正文并 compose:save（saveComposedPatch 会记 manualEditAt 放行）。
  * 返回 null（放行）或错误对象。
@@ -232,7 +232,7 @@ function rewriteGate(entry, dir) {
 }
 
 /**
- * 「素材来源清单不随文发布」的后置兜底校验（PRD v2 §5.2）：
+ * 「素材来源清单不随文发布」的后置兜底校验：
  * 常规防线是提示词规则 + 清单只落 sources.json；但 LLM 若把来源链接写进正文/标题/摘要，
  * 会原样随草稿发布。这里比对 sources.json 的来源 URL（完整 URL 与「域名+路径」两种写法都查），
  * 覆盖 title/digest；sources.json 存在但解析失败时 fail-closed 拦截。
@@ -268,7 +268,7 @@ function sourceLeakGuard(dir, fields) {
   });
   if (!hit) return null;
   const e = new Error(
-    `正文/标题/摘要里出现了素材来源链接（${String(hit.url).slice(0, 80)}）：素材来源清单仅内部可见、不随文章发布（PRD v2 §5.2）。` +
+    `正文/标题/摘要里出现了素材来源链接（${String(hit.url).slice(0, 80)}）：素材来源清单仅内部可见、不随文章发布。` +
     '请删掉其中的来源链接（引用具体研究时署名来源名称即可，不必贴 URL）并保存后再上传'
   );
   e.code = 'E_REWRITE_REQUIRED';

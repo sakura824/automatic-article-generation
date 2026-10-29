@@ -1,11 +1,11 @@
 /* ============================================================
- * api.js —— 渲染层与主进程之间的唯一通道封装（契约 §2/§4）
+ * api.js —— 渲染层与主进程之间的唯一通道封装
  *
  * 职责：
  *  1. 统一信封解包：invoke() 返回 data 或抛 ApiError（{code,message,hint?,errcode?}），绝不静默伪造成功；
  *  2. 演示回退：浏览器直开 index.html（无 window.api / preload）时启用 DemoBridge，
  *     实现与 window.api 相同的方法签名与事件名，数据全部取自设计稿示例；
- *  3. 本文件是渲染层唯一允许出现「演示回退分支判断」的文件（契约 §4）。
+ *  3. 本文件是渲染层唯一允许出现「演示回退分支判断」的文件。
  * ============================================================ */
 (function () {
   'use strict';
@@ -68,10 +68,10 @@
   ].join('');
 
   const DEMO_CONFIG = {
-    wechat: { appId: '', appSecret: '••••••••••••••••••••d41f' },
+    wechat: { appId: '', appSecret: '••••••••••••••••••••' },
     llm: {
       baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-      apiKey: '••••••••••••••••••9c2e',
+      apiKey: '••••••••••••••••••••',
       model: 'glm-4.6',
       temperature: 0.7,
     },
@@ -100,11 +100,11 @@
       keywords: ['科技', '教育', '生活方式'],
       whitelist: ['who.int', 'gov.cn', '人民日报', 'nature.com'],
       searchProvider: 'bocha',
-      searchApiKey: '••••••••••••8f2a',
+      searchApiKey: '••••••••••••••••',
       dailyLimit: 10,
       similarityThreshold: 0.3,
       verticalNotice: { enabled: false, text: '' },
-      sensitiveKeywords: ['断食', '辟谷', '轻断食', '生酮', '减重药物', '降脂药物', '催吐', '绝食', '代餐替代'],
+      sensitiveKeywords: [],
     },
     app: { schedule: { enabled: true, time: '09:30' }, autoLaunch: true, closeToTray: true, notify: true },
   };
@@ -340,7 +340,7 @@
         return ok(demoScheduleGet());
       }
       case 'dialog:pick-repo':
-        return ok({ path: 'D:\\projects\\sample-service' }); // 与主进程契约一致：{path|null}
+        return ok({ path: 'D:\\projects\\sample-service' }); // 与主进程约定一致：{path|null}
       case 'dialog:pick-cover':
         return ok({ path: 'D:\\projects\\sample-service\\assets\\cover-2026.png' });
       case 'shell:open-path':
@@ -352,7 +352,7 @@
       case 'win:close':
         return ok({});
 
-      /* ---- v2 通道（名称与 payload/返回对齐 main/ipc.js v2 落地契约） ---- */
+      /* ---- v2 通道（名称与 payload/返回对齐 main/ipc.js v2 落地约定） ---- */
       case 'compose:generate':
         return demoComposeGenerate(payload);
       case 'compose:save':
@@ -432,7 +432,7 @@
       case 'radar:get':
         return ok(demo.radarDay ? { radar: { date: demo.radarDay, topics: demo.radarTopics.map((t) => Object.assign({}, t)), generatedAt: new Date().toISOString(), removedCount: 2 } } : fail('E_NOT_FOUND', todayStr() + ' 还没有热点清单：点「立即搜索」生成'));
       case 'radar:select': {
-        // ipc 契约：{date, ids}（每次全量传当前勾选）→ {radar, changed}（仅持久化，敏感闸在 compose:generate）
+        // ipc 约定：{date, ids}（每次全量传当前勾选）→ {radar, changed}（仅持久化，敏感闸在 compose:generate）
         const ids = (payload && payload.ids) || [];
         if (!Array.isArray(ids)) return fail('E_INVALID_INPUT', 'ids 应为选题 id 字符串数组');
         if (ids.length > 50) return fail('E_INVALID_INPUT', '勾选数量过多（最多 50 条）');
@@ -451,7 +451,7 @@
   function deepMerge(target, patch) {
     Object.keys(patch || {}).forEach((k) => {
       const v = patch[k];
-      if (v === null || v === undefined) return; // null 语义：保留原值（契约 §2 config:set）
+      if (v === null || v === undefined) return; // null 语义：保留原值
       if (typeof v === 'object' && !Array.isArray(v) && typeof target[k] === 'object' && target[k] !== null) {
         deepMerge(target[k], v);
       } else {
@@ -568,7 +568,7 @@
   }
 
   async function demoComposeGenerate(payload) {
-    const mode = (payload && payload.mode) || 'material'; // ipc 契约：mode ∈ material | chat | radar
+    const mode = (payload && payload.mode) || 'material'; // ipc 约定：mode ∈ material | chat | radar
     await delay(1300);
     if (mode === 'radar') {
       const ids = (payload && payload.ids) || [];
@@ -639,7 +639,7 @@
   }
 
   async function demoChatSend(payload) {
-    const content = String((payload && payload.text) || '').trim(); // ipc 契约：{sessionId, text}
+    const content = String((payload && payload.text) || '').trim(); // ipc 约定：{sessionId, text}
     if (!content) return fail('E_INVALID_INPUT', '消息内容不能为空');
     await delay(1100);
     let session = demo.chats.find((c) => c.id === (payload && payload.sessionId));
@@ -684,7 +684,7 @@
   App.api = {
     /**
      * 调用 IPC 通道；成功 resolve(data)，失败 reject(AppError)。
-     * 真实环境：window.api.invoke 返回 {ok,data}|{ok,error}（不 reject，契约 §2）。
+     * 真实环境：window.api.invoke 返回 {ok,data}|{ok,error}（不 reject，）。
      */
     async invoke(channel, payload) {
       let res;
@@ -702,7 +702,7 @@
     },
 
     /** 订阅主进程事件：run:progress / run:finished / selfcheck:progress / log:append
-     *  返回退订函数（preload 的契约就是返回取消订阅）；视图重订阅时必须能解除，否则监听会累积。 */
+     *  返回退订函数（preload 的约定就是返回取消订阅）；视图重订阅时必须能解除，否则监听会累积。 */
     on(channel, cb) {
       if (hasRealApi) {
         return window.api.on(channel, cb);
